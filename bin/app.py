@@ -1,26 +1,24 @@
 # coding: utf-8
+# 声明flask服务器
+# 配置日志格式
+import logging.config
 import os
 import sys
-import json
 import time
-from collections import defaultdict
-# 声明flask服务器
-from flask import Flask, request, Response
-# 配置日志格式
-import logging
-import logging.config
+
 logging.getLogger("requests").setLevel(logging.ERROR)
-from optparse import OptionParser
 # sys.path有很多utils的目录，放在前面才能找到相关module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lib'))
 # 加载配置
 from utils.config_loader import config
+
 # 配置实例
 conf = config.conf
 logging.config.dictConfig(conf['web_logging'])
-_logger = logging.getLogger("root."+__name__)
+_logger = logging.getLogger("root." + __name__)
 # 加载数据接口
 from dal import label_questions_info as label
+
 # 编码问题
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -51,7 +49,8 @@ def main(year):
                 _logger.error(v.message)
                 errors.append(v.message[0])
 
-    # 处理错误信息
+                # 处理错误信息
+
 
 if __name__ == '__main__':
     """
