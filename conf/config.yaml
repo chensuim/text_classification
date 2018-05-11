@@ -1,0 +1,155 @@
+mysql:
+    dev:
+        host: ''
+        port: 3307
+        user: 'kongfz'
+        passwd: ''
+        db: 'shensz'
+        charset: 'utf8'
+    prod:
+        host: ''
+        port: 3306
+        user: ''
+        passwd: ''
+        db: ''
+        charset: 'utf8'
+
+memcached:
+    dev:
+        hosts: ['127.0.0.1:12000']
+        common_time_expire: 7200
+    prod:
+        hosts: ['127.0.0.1:12000']
+        common_time_expire: 7200
+
+offline_logging:
+    version: 1
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)s - %(name)s[line:%(lineno)d]: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        # 标准输出，只要级别在DEBUG以上就会输出
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+            stream: ext://sys.stdout
+        # INFO以上，滚动文件，保留20个，每个最大100MB
+        info_file_handler:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ../logs/offline/info.log
+            maxBytes: 104857600
+            backupCount: 20
+        # ERROR以上
+        error_file_handler:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: ERROR
+            filename: ../logs/offline/error.log
+            maxBytes: 104857600
+            backupCount: 20
+    root:
+        level: DEBUG
+        handlers: [console, info_file_handler, error_file_handler]
+
+web_logging:
+    version: 1
+    formatters:
+        simpleFormater:
+            format: '%(asctime)s - %(levelname)s - %(name)s[line:%(lineno)d]: %(message)s'
+            datefmt: '%Y-%m-%d %H:%M:%S'
+    handlers:
+        # 标准输出，只要级别在DEBUG以上就会输出
+        console:
+            class: logging.StreamHandler
+            formatter: simpleFormater
+            level: DEBUG
+            stream: ext://sys.stdout
+        # INFO以上，滚动文件，保留20个，每个最大100MB
+        info_file_handler:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ../logs/web/info.log
+            maxBytes: 104857600
+            backupCount: 20
+        # ERROR以上
+        error_file_handler:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: ERROR
+            filename: ../logs/web/error.log
+            maxBytes: 104857600
+            backupCount: 20
+        cluster_file_handle:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ../logs/web/cluster_result.log
+            maxBytes: 104857600
+            backupCount: 30
+        insert_data_file_handle:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ../logs/web/insert_data_db.log
+            maxBytes: 104857600
+            backupCount: 30
+        tag_file_handle:
+            class : logging.handlers.RotatingFileHandler
+            formatter: simpleFormater
+            level: INFO
+            filename: ../logs/web/tag_result.log
+            maxBytes: 104857600
+            backupCount: 30
+    loggers:
+        root:
+            level: DEBUG
+            handlers: [console, info_file_handler, error_file_handler]
+        cluster:
+            level: INFO
+            handlers: [cluster_file_handle]
+        tag:
+            level: INFO
+            handlers: [tag_file_handle]
+        insertdb:
+            level: INFO
+            handlers: [insert_data_file_handle]
+
+cluster_es_query_num: 15
+cluster_es_query_keypoint_num: 15
+cluster_es_query_chapter_num: 15
+cluster_es_query_cha_key_num: 15
+chapter_es_query_num: 15
+diff_es_query_num: 11
+suited_es_query_num: 37
+keypoint_es_query_num: 9
+cluster_confidence: 10
+chapter_confidence: 10
+diff_confidence: 10
+# 将适应情况阈值由20调到10
+suited_confidence: 10
+# 将知识点阈值分级控制：top1:0;top2,3:5;top4,5:10
+keypoint_confidence: 5
+es_query_topN: 5
+
+es_query_api:
+    dev_url_api: 'http://192.168.0.3:9200/shensz/solution/_search'
+    prod_url_api: 'http://10.0.137.71:9200/shensz/solution/_search'
+    content-type: 'application/json'
+    Cookie: 'username=%E6%9D%8E%E5%BB%BA%E6%88%90ss; school=607389; username_pinyin=lijianchengss;
+    phone=18816789921; uid=5282; role=3; sszservice.connect.sid=s%3AdOKir0szqf7gbLhBpv0SNcJDBlECGIy7.V3cW%2BYHzvrLAbPzjcV2PrPB5A6DBStQA8%2FA%2FmwUWZ0g;
+    superapi.sid=nod4rPjLyFCzQFrBOlrqsLoeK-OG0OLS; superapi.sid.sig=g-0nvEADI-PvNzQJT0c2yDC51Z0;
+    aliyungf_tc=AQAAAGri5BolcQIAd9RtcTrWwNbXIp9N; Hm_lvt_027462e29e1dbce3fcb2a6b8b5a08280=1499409100,1500347218;
+    Hm_lpvt_027462e29e1dbce3fcb2a6b8b5a08280=1500443084'
+
+formula_query_api:
+    dev_url_api: 'http://formulasim.uae.shensz.local/lquestion'
+    prod_url_api: 'http://10.0.137.69:9998/lquestion'
+
+image_query_api:
+    dev_url_api: 'http://192.168.0.12:40003'
+    prod_url_api: 'http://10.0.137.69:9999'
