@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 import sys
 import os
 import logging
@@ -11,6 +11,8 @@ from DBUtils.PooledDB import PooledDB
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
 from singleton import *
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 logger = logging.getLogger(__name__)
 def execute_with_log(self, sql, data=()):
@@ -63,11 +65,11 @@ class MySQLClient(object):
         finally:
             cursor.close()
             conn.close()
-    
+
 
     def executemany(self, sql, datas):
         """
-        Args: 
+        Args:
             sql: SQL语句
             datas: 数据
         Returns:
@@ -88,7 +90,7 @@ class MySQLClient(object):
     def all(self, sql, data=()):
         """
         查询SQL，获取所有指定的列
-        Args: 
+        Args:
             sql: SQL语句
         Returns:
             结果集

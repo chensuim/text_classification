@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 import requests
 import json
 import logging
@@ -6,90 +6,113 @@ from collections import Counter
 from collections import defaultdict
 import os
 import sys
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-# 加载配置
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from utils.config_loader import config
-conf = config.conf
+from dal.dao.question import question_tag_cluster, question_tag_chapter, \
+    question_tag_difficulty, question_tag_suit, question_tag_key_point
 
-from dal.dao import question_tag, question_cluster
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
-class FormulaQuery(object):
+
+class ReferrerByFormula(object):
     def __init__(self):
-        # self._question_info = question_dao
         self._logger = logging.getLogger(__name__)
-        self._runtime_mode = conf.runtime_mode
-        if self._runtime_mode == "prod":
-            self.url_api = conf['formula_query_api']['prod_url_api']
+        self._runtime_mode = config.runtime_mode
+
+        if self._runtime_mode == 'prod':
+            self._formula_query_url = config.conf['formula_query_api']['prod_url_api']
         else:
-            self.url_api = conf['formula_query_api']['dev_url_api']
+            self._formula_query_url = config.conf['formula_query_api']['dev_url_api']
 
+    def _get_tags(self, question_id, query_size=40):
+        """
+        :param question_id: 检索题目id
+        :param query_size: 检索返回结果条目数量
+        :return:
+        """
 
-    def _get_formula_similarity(self, question_id, size = 40):
-        '''
-        根据题目ID得到前size个结果
-        '''
-        #api = 'http://formulasim.uae.shensz.local/lquestion?question_id={0}&num={1}'.format(question_id, size)
-        #api = conf['formula_api'] + '?question_id={0}&num={1}'.format(question_id, size)
-        api = self.url_api + '?question_id={0}&num={1}'.format(question_id, size)
-        resp = requests.get(api)
+        formula_query_api = '{0}?question_id={1}&num={2}'.format(self._formula_query_url, question_id, query_size)
+        resp = requests.get(formula_query_api)
         resp_dict = json.loads(resp.text)
-        result_tag = defaultdict(list)
-        # 公式返回结果错误
+        cluster_tag = []
+        chapter_tag = defaultdict(list)
+        difficulty_tag = []
+        suit_tag = []
+        key_point_tag = []
+
         if resp_dict['status'] is not True:
-            self._logger.error('formula return no result!  Response status: %s', resp_dict['status'])
-            raise ValueError(('题目%s不存在'% question_id, ))
+            error_fmt_str = 'ReferrerByFormula query error. Url: {}, question_id: {}, response: {}'
+            self._logger.error(error_fmt_str, self._formula_query_url, question_id, resp_dict['status'])
         else:
             for question in resp_dict['data']:
-                # index = question['index']
                 id_ = question['question_id']
-                tag_info = question_tag(id_)
-                # 统计结果中各个课本下的章节
-                if tag_info != [] and tag_info is not None:
-                    for book_id, title in tag_info:
-                        result_tag[book_id].append(title)
-                cluster = question_cluster(id_)
-                result_tag['cluster'].append(cluster[0]) if cluster != [] else None
-        return result_tag
 
-    def _sort_result_tag(self, result_tag):
-        # 如果没有结果, 输出警告
-        if result_tag == defaultdict(list):
-            self._logger.error('formula return None!')
-        # Counter排序
-        else:
-            sorted_cluster = Counter(result_tag['cluster'])
-            if len(sorted_cluster) == 0:
-                self._logger.error("sorted_cluster is None!")
-            sorted_chapter = defaultdict(dict)
-            for book_id, chapter_title in result_tag.iteritems():
-                if book_id != 'cluster':
-                    sorted_chapter[book_id] = Counter(result_tag[book_id])
-        return sorted_chapter, sorted_cluster
+                # cluster tag
+                cluster_tag_info = question_tag_cluster(id_)
+                cluster_tag = list(cluster_tag_info)
 
-    def get_recomment_result(self, question_id, size = 10, topN = 3):
-        '''
-        公式检索接口
-        Args: 
-            question_id: 题目ID
-            size: 公式检索返回的题目数
-        '''
-        result_tag = self._get_formula_similarity(question_id, size = size)
-        sorted_chapter, sorted_cluster = self._sort_result_tag(result_tag)
-        cluster_ranklist = defaultdict(dict)
-        cluster_ranklist['cluster']= []
-        
-        chapter_ranklist = defaultdict(dict)
-        chapter_ranklist['chapter'] = defaultdict(list)
+                # chapter tag
+                chapter_tag_info = question_tag_chapter(id_)
+                for teach_book_id, chapter_title, _ in chapter_tag_info:
+                    chapter_tag[teach_book_id].append(chapter_title)
 
-        top_cluster = min(topN, len(sorted_cluster))
-        for cluster_name, _ in sorted_cluster.most_common(top_cluster):
-            cluster_ranklist['cluster'].append(cluster_name)
+                # difficulty tag
+                difficulty_tag_info = question_tag_difficulty(id_)
+                difficulty_tag = list(difficulty_tag_info)
 
-        for book_id, counter_object in sorted_chapter.iteritems():
-            top_chapter = min(topN, len(counter_object))
-            for chapter_name, _ in counter_object.most_common(top_chapter):
-                chapter_ranklist['chapter'][book_id].append(chapter_name)
-        return cluster_ranklist, chapter_ranklist
+                # suit tag
+                suit_tag_info = question_tag_suit(id_)
+                suit_tag = list(suit_tag_info)
+
+                # key point tag
+                key_point_tag_info = question_tag_key_point(id_)
+                key_point_tag = list(key_point_tag_info)
+
+        return {'cluster': cluster_tag,
+                'chapter': chapter_tag,
+                'difficulty': difficulty_tag,
+                'suit': suit_tag,
+                'key_point': key_point_tag}
+
+    @staticmethod
+    def _sort_tags(tags):
+        sorted_tags = {}
+
+        for tag_type, tag_values in tags.iteritems():
+            if isinstance(tag_values, dict):
+                sorted_tags[tag_type] = {k: Counter(v) for k, v in tag_values.iteritems()}
+            else:
+                sorted_tags[tag_type] = Counter(tag_values) if tag_values else {}
+
+        return sorted_tags
+
+    def get_referred_result(self, question_id, query_size=40, topn=3):
+        """
+        :param question_id: 检索题目id
+        :param query_size: 检索返回结果条目数量
+        :param topn: 置信度，取前topn个结果
+        :return:
+        """
+
+        tags = self._get_tags(question_id, query_size)
+        sorted_tags = self._sort_tags(tags)
+        referred_tags = {}
+
+        for tag_type, tag_values in sorted_tags.iteritems():
+            if isinstance(tag_values, dict):
+                for k, v in tag_values:
+                    topn_tag = min(topn, len(v))
+                    referred_tags[tag_type][k] = [tag_id for tag_id, _ in v.most_common(topn_tag)]
+            else:
+                topn_tag = min(topn, len(tag_values))
+                referred_tags[tag_type] = [tag_id for tag_id, _ in tag_values.most_common(topn_tag)]
+
+        return referred_tags
 
 
+if __name__ == '__main__':
+    referrer = ReferrerByFormula()
+    result = referrer.get_referred_result('None')
+
+    print result

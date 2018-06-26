@@ -78,7 +78,61 @@ def question_title_options(question_id):
 
 
 @auto_mc
-def question_tag(question_id):
+def question_tag_key_point(question_id):
+    """
+    获取题目的知识点
+    Args:
+        question_id: 题目ID
+    Returns:
+        元组: (知识点标签)
+    """
+    sql = '''SELECT tag_id
+             FROM solution_tag
+             WHERE tag_type = "G"
+             AND status != 0
+             AND question_id = %s'''
+    result = _mysql.all(sql, (question_id, ))
+    return result
+
+
+@auto_mc
+def question_tag_suit(question_id):
+    """
+    获取题目的适应情况
+    Args:
+        question_id: 题目ID
+    Returns:
+        元组: (适应情况标签)
+    """
+    sql = '''SELECT tag_id
+             FROM solution_tag
+             WHERE tag_type = "B"
+             AND status != 0
+             AND question_id = %s'''
+    result = _mysql.all(sql, (question_id, ))
+    return result
+
+
+@auto_mc
+def question_tag_difficulty(question_id):
+    """
+    获取题目的难度
+    Args:
+        question_id: 题目ID
+    Returns:
+        元组: (难度标签)
+    """
+    sql = '''SELECT tag_id
+             FROM solution_tag
+             WHERE tag_type = "A"
+             AND status != 0
+             AND question_id = %s'''
+    result = _mysql.all(sql, (question_id, ))
+    return result
+
+
+@auto_mc
+def question_tag_chapter(question_id):
     """
     获取题目的章节
     Args:
@@ -91,21 +145,21 @@ def question_tag(question_id):
              JOIN chapter_new  AS cn
              ON st.tag_id = cn.id
              AND st.question_id = %s
-             AND st.tag_type = "H" AND st.status != 0;'''
+             AND st.tag_type = "H" AND st.status != 0'''
     result = _mysql.all(sql, (question_id, ))
     return result
 
 
 @auto_mc
-def question_cluster(question_id):
+def question_tag_cluster(question_id):
     """
     获取题目的聚类
     Args:
         question_id: 题目ID
     Returns:
-        tuple: (聚类名称，聚类ID)
+        元组: (聚类名称)
     """
-    sql = '''SELECT sc.title, scs.cluster_id
+    sql = '''SELECT sc.title
              FROM solution_cluster AS sc
              JOIN solution_cluster_similar   AS scs
              ON   sc.id = scs.cluster_id
