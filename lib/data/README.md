@@ -4,4 +4,3 @@
 
 * mc: memcached
 * mysql: MySQL数据库
-* hive: Hive

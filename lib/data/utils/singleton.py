@@ -1,6 +1,7 @@
 # encoding: utf-8
 
-def singleton(cls, *args, **kwargs):
+
+def singleton(cls):
     """
     单例装饰器
     使用方法:
@@ -15,9 +16,9 @@ def singleton(cls, *args, **kwargs):
     assert id(one) == id(two)
     """
     instances = {}
+
     def _singleton(*args, **kwargs):
         if cls not in instances:
             instances[cls] = cls(*args, **kwargs)
         return instances[cls]
     return _singleton
-

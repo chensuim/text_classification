@@ -1,14 +1,14 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 from config_loader import *
 _mc = config.get_default_mc()
 
 
-def auto_mc(func, *args, **kwargs):
+def auto_mc(func):
     """自动memcache装饰器
     """
-    fname = func.func_name
-    def _auto_mc(*args,**kwargs):
-        key = fname + '_' + '_'.join([str(item) for item in (list(args) + kwargs.values())])
+
+    def _auto_mc(*args, **kwargs):
+        key = func.func_name + '_' + '_'.join([str(item) for item in (list(args) + kwargs.values())])
         obj = _mc.get(key)
         if obj is None:
             obj = func(*args, **kwargs)

@@ -1,20 +1,16 @@
-# coding: utf-8
-import os
+# -*- coding: utf-8 -*-
 import sys
-import logging
 import logging.config
 from collections import defaultdict
-# 加载数据接口
 import dao.question as question
 import dao.write_info_to_mysql as feed
-# 加载ES检索接口
 from es_query_tag import EsQueryTag
 from es_query_cluster import EsQueryCluster
-# 编码问题
+
 reload(sys)
 sys.setdefaultencoding('utf8')
-_logger = logging.getLogger("root."+__name__)
 
+_logger = logging.getLogger("root."+__name__)
 es = EsQueryTag()
 es_cluster = EsQueryCluster()
 

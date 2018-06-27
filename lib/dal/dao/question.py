@@ -1,8 +1,6 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 import os
 import sys
-from collections import defaultdict
-import time
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'lib'))
 from utils.auto_mc import *

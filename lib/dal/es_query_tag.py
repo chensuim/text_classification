@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 import requests
 import json
 from collections import defaultdict
@@ -7,10 +7,13 @@ import time
 import os
 import sys
 import collections
-
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 # 加载配置
 from utils.config_loader import config
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 conf = config.conf
 
 
@@ -276,6 +279,7 @@ class EsQueryTag(object):
                     "recommend question_id to keypoint: {'question_id':'%s', 'keypoint':'%s', 'confidence':%s}"
                     % (question_id, keypoint['keypoint'], keypoint['confidence']))
         return tag_result
+
 
 if __name__ == "__main__":
     es = EsQueryTag()
