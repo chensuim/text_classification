@@ -32,6 +32,12 @@ class ReferrerByFormula(object):
         formula_query_api = '{0}?question_id={1}&num={2}'.format(self._formula_query_url, question_id, query_size)
         resp = requests.get(formula_query_api)
         resp_dict = json.loads(resp.text)
+        # resp_dict = {
+        #     'status': True,
+        #     'data': [
+        #         {'question_id': 'ea67af4b-2cd8-4bc2-88d3-8c87abcfb474'}
+        #     ]
+        # }
         cluster_tag = []
         chapter_tag = defaultdict(list)
         difficulty_tag = []
@@ -47,12 +53,12 @@ class ReferrerByFormula(object):
 
                 # cluster tag
                 cluster_tag_info = question_tag_cluster(id_)
-                cluster_tag = list(cluster_tag_info)
+                cluster_tag = [str(cluster_id) for cluster_id in cluster_tag_info]
 
                 # chapter tag
                 chapter_tag_info = question_tag_chapter(id_)
-                for teach_book_id, chapter_title, _ in chapter_tag_info:
-                    chapter_tag[teach_book_id].append(chapter_title)
+                for teach_book_id, chapter_id in chapter_tag_info:
+                    chapter_tag[str(teach_book_id)].append(chapter_id)
 
                 # difficulty tag
                 difficulty_tag_info = question_tag_difficulty(id_)

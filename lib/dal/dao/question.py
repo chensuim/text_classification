@@ -78,7 +78,7 @@ def question_tag_key_point(question_id):
     Args:
         question_id: 题目ID
     Returns:
-        元组: (知识点标签)
+        list of 知识点标签id
     """
     sql = '''SELECT tag_id
              FROM solution_tag
@@ -96,7 +96,7 @@ def question_tag_suit(question_id):
     Args:
         question_id: 题目ID
     Returns:
-        元组: (适应情况标签)
+        list of 适应情况标签id
     """
     sql = '''SELECT tag_id
              FROM solution_tag
@@ -114,7 +114,7 @@ def question_tag_difficulty(question_id):
     Args:
         question_id: 题目ID
     Returns:
-        元组: (难度标签)
+        list of 难度标签id
     """
     sql = '''SELECT tag_id
              FROM solution_tag
@@ -132,14 +132,13 @@ def question_tag_chapter(question_id):
     Args:
         question_id: 题目ID
     Returns:
-        元组: (教材版本号，章节名称，章节ID)
+        list of tuple: (教材版本号，章节ID)
     """
-    sql = '''SELECT st.teach_book_id, cn.title, cn.id
-             FROM solution_tag AS st
-             JOIN chapter_new  AS cn
-             ON st.tag_id = cn.id
-             AND st.question_id = %s
-             AND st.tag_type = "H" AND st.status != 0'''
+    sql = '''SELECT teach_book_id, tag_id
+             FROM solution_tag
+             WHERE tag_type = "H"
+             AND status != 0
+             AND question_id = %s'''
     result = _mysql.all(sql, (question_id, ))
     return result
 
@@ -151,13 +150,11 @@ def question_tag_cluster(question_id):
     Args:
         question_id: 题目ID
     Returns:
-        元组: (聚类名称)
+        list of 聚类id
     """
-    sql = '''SELECT sc.title
-             FROM solution_cluster AS sc
-             JOIN solution_cluster_similar   AS scs
-             ON   sc.id = scs.cluster_id
-             AND  scs.question_id = %s'''
+    sql = '''SELECT cluster_id
+             FROM solution_cluster_similar
+             WHERE question_id = %s'''
     result = _mysql.all(sql, (question_id, ))
     return result
 
