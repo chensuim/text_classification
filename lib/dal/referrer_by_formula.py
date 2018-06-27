@@ -80,7 +80,7 @@ class ReferrerByFormula(object):
         sorted_tags = {}
 
         for tag_type, tag_values in tags.iteritems():
-            if isinstance(tag_values, dict):
+            if tag_type == 'chapter':
                 sorted_tags[tag_type] = {k: Counter(v) for k, v in tag_values.iteritems()}
             else:
                 sorted_tags[tag_type] = Counter(tag_values) if tag_values else {}
@@ -100,8 +100,9 @@ class ReferrerByFormula(object):
         referred_tags = {}
 
         for tag_type, tag_values in sorted_tags.iteritems():
-            if isinstance(tag_values, dict):
-                for k, v in tag_values:
+            if tag_type == 'chapter':
+                referred_tags[tag_type] = {}
+                for k, v in tag_values.iteritems():
                     topn_tag = min(topn, len(v))
                     referred_tags[tag_type][k] = [tag_id for tag_id, _ in v.most_common(topn_tag)]
             else:
