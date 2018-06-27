@@ -1,22 +1,18 @@
 # -*- coding: utf-8 -*-
 import logging.config
-import os
 import sys
 import time
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'lib'))
-from utils.config_loader import config
-from dal import label_questions_info as label
+from lib.utils.config_loader import config
+from lib.dal import label_questions_info as label
 
-from .. import *
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 # 配置实例
 conf = config.conf
 logging.getLogger("requests").setLevel(logging.ERROR)
 logging.config.dictConfig(conf['web_logging'])
 _logger = logging.getLogger("root." + __name__)
-
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 
 def main(year):
@@ -35,10 +31,8 @@ def main(year):
     try:
         label.label_cluster_for_questions(year)
         label.label_tags_for_questions_summary(year)
-    except Exception as v:
-        _logger.error("exception --->>>: %s", v)
-        if isinstance(v, ValueError) and isinstance(v.message, tuple):
-            _logger.error(v.message)
+    except Exception as e:
+        _logger.error("exception --->>>: %s", e)
 
 
 if __name__ == '__main__':

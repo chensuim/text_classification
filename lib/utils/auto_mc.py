@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from config_loader import *
-_mc = config.get_default_mc()
+from data_source_factory import DataSourceFactory
+
+_mc = DataSourceFactory().get_mc_client()
 
 
 def auto_mc(func):

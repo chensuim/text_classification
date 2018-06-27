@@ -4,12 +4,9 @@ import json
 from collections import defaultdict
 import logging
 import time
-import os
 import sys
 import collections
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-# 加载配置
-from utils.config_loader import config
+from lib.utils.config_loader import config
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -55,8 +52,7 @@ class EsQueryTag(object):
         '''
         :return: 文件头，url
         '''
-        headers = {}
-        headers['content-type'] = conf['es_query_api']['content-type']
+        headers = {'content-type': conf['es_query_api']['content-type']}
         url_api = conf['es_query_api']['dev_url_api']
         if self._runtime_mode == "prod":
             headers['Cookie'] = conf['es_query_api']['Cookie']

@@ -27,5 +27,5 @@ bin/label_cluster_info.py           | 聚类推荐：数据库获取题目，解
 crontab
 
 ```bash
-30 00 * * * source ~/.bash_profile; cd /data/app/yqss/shensz/tag_cluster_recommend/bin/ && python app.py 2>&1 > /dev/null
+30 00 * * * source ~/.bash_profile; cd /data/app/yqss/shensz/tag_cluster_recommend/ && python app.py 2>&1 > /dev/null
 ```

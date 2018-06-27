@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
+from lib.utils.auto_mc import *
+from lib.utils.data_source_factory import DataSourceFactory
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'lib'))
-from utils.auto_mc import *
-from utils.data_source_factory import DataSourceFactory
-
-_mc = config.get_default_mc()
+_mc = DataSourceFactory().get_mc_client()
 _mysql = DataSourceFactory().get_mysql_client()
 
 

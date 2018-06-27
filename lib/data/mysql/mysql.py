@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 import sys
-import os
 import logging
 import time
-
 import MySQLdb
 from MySQLdb import cursors
 from DBUtils.PooledDB import PooledDB
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
-from singleton import *
+from lib.utils.singleton import *
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
 logger = logging.getLogger(__name__)
+
+
 def execute_with_log(self, sql, data=()):
     """
     带日志输出的SQL执行。改造了Cursor类，自动输出日志，方便Debug和查问题。
@@ -44,7 +42,6 @@ class MySQLClient(object):
     def _get_connect_from_pool(self):
         return self._pool.connection()
 
-
     def execute(self, sql, data):
         """
         执行一条SQL
@@ -65,7 +62,6 @@ class MySQLClient(object):
         finally:
             cursor.close()
             conn.close()
-
 
     def executemany(self, sql, datas):
         """

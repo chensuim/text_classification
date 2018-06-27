@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 from config_loader import ConfigLoader
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..', 'lib'))
-from data.mysql.mysql import MySQLClient
-from data.mc.mc import MCClient
+from lib.data.mysql.mysql import MySQLClient
+from lib.data.mc.mc import MCClient
 
 
 class DataSourceFactory(object):

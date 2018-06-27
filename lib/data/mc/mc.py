@@ -1,12 +1,9 @@
 # coding: utf-8
-import sys
-import os
 import pylibmc
 import logging
 import time
+from lib.utils.singleton import *
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'utils'))
-from singleton import *
 
 @singleton
 class MCClient(object):
@@ -26,10 +23,10 @@ class MCClient(object):
         value = None
         try:
             value = self._mc.get(key)
-            if value != None:
+            if value is not None:
                 self._logger.debug('\n\033[0;32m[memcached GET CACHED] %s\033[0m', key)
         except Exception as e:
-            self._logger.error('MCClient error: ', exc_info=True)
+            self._logger.error('MCClient error: ', e, exc_info=True)
         return value
 
     def set(self, key, value, time_expire=None):
@@ -39,5 +36,4 @@ class MCClient(object):
             value = self._mc.set(key, value, time=time_expire)
             self._logger.debug('\n\033[0;32m[memcached SET] %s\033[0m', key)
         except Exception as e:
-            self._logger.error('MCClient error: ', exc_info=True)
-        
+            self._logger.error('MCClient error: ', e, exc_info=True)

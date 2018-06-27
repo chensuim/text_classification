@@ -2,14 +2,11 @@
 import requests
 import json
 import logging
+import sys
 from collections import Counter
 from collections import defaultdict
-import os
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from utils.config_loader import config
-from dal.dao.question import question_tag_cluster, question_tag_chapter, \
-    question_tag_difficulty, question_tag_suit, question_tag_key_point
+from lib.utils.config_loader import config
+from lib.dal.dao.question import *
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
