@@ -4,15 +4,15 @@ import logging.config
 from collections import defaultdict
 import dao.question as question
 import dao.write_info_to_mysql as feed
-from es_query_tag import EsQueryTag
-from es_query_cluster import EsQueryCluster
+from recommend_tag import TagRecommender
+from recommend_cluster import ClusterRecommender
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 _logger = logging.getLogger("root."+__name__)
-es = EsQueryTag()
-es_cluster = EsQueryCluster()
+tag_recommender = TagRecommender()
+es_cluster = ClusterRecommender()
 
 
 def label_chapter_zj_for_question(year, questions_to_label_list):
@@ -43,7 +43,7 @@ def label_summary_tags_for_questions(questions_to_label):
         questions_to_label_index += 1
         # _logger.info("finished query %s/%s"%(questions_to_label_index, questions_to_label_num))
         try:
-            result_dict = es.recommend_many_tag(question_id)
+            result_dict = tag_recommender.recommend_many_tag(question_id)
         except Exception as v:
             _logger.error("ES_QUERY_TAG的锅:%s"%(v))
             continue

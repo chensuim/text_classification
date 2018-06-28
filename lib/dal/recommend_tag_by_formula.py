@@ -12,7 +12,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 
 
-class ReferrerByFormula(object):
+class TagRecommenderByFormula(object):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
         self._runtime_mode = config.runtime_mode
@@ -35,7 +35,10 @@ class ReferrerByFormula(object):
         # resp_dict = {
         #     'status': True,
         #     'data': [
-        #         {'question_id': 'ea67af4b-2cd8-4bc2-88d3-8c87abcfb474'}
+        #         {
+        #             'question_id': 'ea67af4b-2cd8-4bc2-88d3-8c87abcfb474',
+        #             'score': 0.8
+        #         }
         #     ]
         # }
         cluster_tag = []
@@ -50,27 +53,28 @@ class ReferrerByFormula(object):
         else:
             for question in resp_dict['data']:
                 id_ = question['question_id']
+                score = question['score']
 
                 # cluster tag
                 cluster_tag_info = question_tag_cluster(id_)
-                cluster_tag = [str(cluster_id) for cluster_id in cluster_tag_info]
+                cluster_tag = [(score, cluster_id) for cluster_id in cluster_tag_info]
 
                 # chapter tag
                 chapter_tag_info = question_tag_chapter(id_)
                 for teach_book_id, chapter_id in chapter_tag_info:
-                    chapter_tag[str(teach_book_id)].append(chapter_id)
+                    chapter_tag[teach_book_id].append((score, chapter_id))
 
                 # difficulty tag
                 difficulty_tag_info = question_tag_difficulty(id_)
-                difficulty_tag = list(difficulty_tag_info)
+                difficulty_tag = [(score, difficulty_id) for difficulty_id in difficulty_tag_info]
 
                 # suit tag
                 suit_tag_info = question_tag_suit(id_)
-                suit_tag = list(suit_tag_info)
+                suit_tag = [(score, suit_id) for suit_id in suit_tag_info]
 
                 # key point tag
                 key_point_tag_info = question_tag_key_point(id_)
-                key_point_tag = list(key_point_tag_info)
+                key_point_tag = [(score, key_point_id) for key_point_id in key_point_tag_info]
 
         return {'cluster': cluster_tag,
                 'chapter': chapter_tag,
@@ -116,7 +120,7 @@ class ReferrerByFormula(object):
 
 
 if __name__ == '__main__':
-    referrer = ReferrerByFormula()
-    result = referrer.get_referred_result('None')
+    recommender = TagRecommenderByFormula()
+    result = recommender.get_referred_result('None')
 
     print result

@@ -17,7 +17,7 @@ sys.setdefaultencoding('utf8')
 conf = config.conf
 
 
-class EsQueryCluster(object):
+class ClusterRecommender(object):
     def __init__(self):
         """
         初始化ES搜索
@@ -378,5 +378,5 @@ class EsQueryCluster(object):
 
 
 if __name__ == '__main__':
-    es = EsQueryCluster()
+    es = ClusterRecommender()
     print es.recommend_many_cluster("000b0cae-9398-47fd-a4f1-3a54b55e3651")

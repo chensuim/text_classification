@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from lib.utils.auto_mc import *
+import logging
 from lib.utils.data_source_factory import DataSourceFactory
 
 _mc = DataSourceFactory().get_mc_client()

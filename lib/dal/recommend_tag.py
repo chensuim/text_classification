@@ -3,10 +3,10 @@ import requests
 import json
 from collections import defaultdict
 import logging
-import time
 import sys
 import collections
 from lib.utils.config_loader import config
+from recommend_tag_by_formula import TagRecommenderByFormula
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -14,11 +14,11 @@ sys.setdefaultencoding('utf8')
 conf = config.conf
 
 
-class EsQueryTag(object):
+class TagRecommender(object):
     def __init__(self):
-        '''
-        初始化ES搜索
-        '''
+        """
+        利用ES文本相似度和公式相似度来推荐标签
+        """
         # 运行环境
         self._runtime_mode = config.runtime_mode
         # 章节置信区间
@@ -47,6 +47,9 @@ class EsQueryTag(object):
         self._logger_tag = logging.getLogger("tag")
         # 获取文件头
         self.headers, self.url_api = self._get_headers()
+
+        # 基于公式推荐
+        self._tag_recommender_by_formula = TagRecommenderByFormula()
 
     def _get_headers(self):
         '''
@@ -215,13 +218,30 @@ class EsQueryTag(object):
             question_id: 题目ID
             size: ES检索返回的题目数
         '''
-        # self._logger.info('get_recommend_result: 进入ES检索接口....')
-        start_time = time.time()
         doc = self._get_es_field(question_id)
         result_dict = self._get_text_similar(doc, size)
         chapter_title, diff_dict, suit_dict, keypoint_dict = self._get_tag(question_id, result_dict)
+
+        # 添加基于公式推荐的结果
+        reference_by_formula_weight = 0.8
+        referred_tags_by_formula = self._tag_recommender_by_formula.get_referred_result(question_id)
+        # 更新chapter_title
+        for teach_book_id, tags in referred_tags_by_formula['chapter'].iteritems():
+            for score, tag_id in tags:
+                chapter_title[tag_id]['score'] += score
+                chapter_title[tag_id]['chapter_id'] = tag_id
+                chapter_title[tag_id]['teach_book_id'] = teach_book_id
+        # 更新diff_dict
+        for score, tag_id in referred_tags_by_formula['difficulty']:
+            diff_dict[tag_id] += reference_by_formula_weight * score
+        # 更新suit_dict
+        for score, tag_id in referred_tags_by_formula['suit']:
+            suit_dict[tag_id] += reference_by_formula_weight * score
+        # 更新keypoint_dict
+        for score, tag_id in referred_tags_by_formula['key_point']:
+            keypoint_dict[tag_id] += reference_by_formula_weight * score
+
         tag_result_dict = self._sort_result_tag(chapter_title, diff_dict, suit_dict, keypoint_dict, topN)
-        # self._logger.info("get_recommend_result: ES检索耗时 ->%.2f ms", (time.time() - start_time) * 1000)
         return tag_result_dict
 
     def recommend_many_tag(self, question_id):
@@ -278,5 +298,5 @@ class EsQueryTag(object):
 
 
 if __name__ == "__main__":
-    es = EsQueryTag()
+    es = TagRecommender()
     print es.recommend_many_tag("0010c427-a3dd-4c4c-bfe1-9dacae88a3ab")

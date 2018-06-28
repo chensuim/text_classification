@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
 from config_loader import ConfigLoader
 from lib.data.mysql.mysql import MySQLClient
 from lib.data.mc.mc import MCClient
@@ -13,10 +12,6 @@ class DataSourceFactory(object):
         self._config_loader = ConfigLoader()
         self._conf = self._config_loader.conf
         self._runtime_mode = self._config_loader.runtime_mode
-
-    @staticmethod
-    def _absolute_path(path):
-        return os.path.join(os.path.dirname(__file__), path)
 
     def get_mysql_client(self):
         mysql_conf = self._conf['mysql'][self._runtime_mode]
