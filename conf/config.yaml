@@ -40,7 +40,7 @@ web_logging:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: INFO
-            filename: ../logs/web/info.log
+            filename: logs/web/info.log
             maxBytes: 104857600
             backupCount: 20
         # ERROR以上
@@ -48,28 +48,28 @@ web_logging:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: ERROR
-            filename: ../logs/web/error.log
+            filename: logs/web/error.log
             maxBytes: 104857600
             backupCount: 20
         cluster_file_handle:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: INFO
-            filename: ../logs/web/cluster_result.log
+            filename: logs/web/cluster_result.log
             maxBytes: 104857600
             backupCount: 30
         insert_data_file_handle:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: INFO
-            filename: ../logs/web/insert_data_db.log
+            filename: logs/web/insert_data_db.log
             maxBytes: 104857600
             backupCount: 30
         tag_file_handle:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: INFO
-            filename: ../logs/web/tag_result.log
+            filename: logs/web/tag_result.log
             maxBytes: 104857600
             backupCount: 30
     loggers:
