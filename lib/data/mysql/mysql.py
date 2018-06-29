@@ -83,18 +83,22 @@ class MySQLClient(object):
             cursor.close()
             conn.close()
 
-    def all(self, sql, data=()):
+    def all(self, sql, data=(), show_log=True):
         """
         查询SQL，获取所有指定的列
         Args:
             sql: SQL语句
+            data: 数据
         Returns:
             结果集
         """
         try:
             conn = self._get_connect_from_pool()
             cursor = conn.cursor()
-            cursor.execute_with_log(sql, data)
+            if show_log:
+                cursor.execute_with_log(sql, data)
+            else:
+                cursor.execute(sql, data)
             rows = cursor.fetchall()
             if len(rows) > 0:
                 row_size = len(rows[0])
