@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import os
+import random
 from lib.utils.data_source_factory import DataSourceFactory
 
 reload(sys)
@@ -42,11 +43,20 @@ class DataGenerator(object):
                 for question_id in results:
                     f.write('{}\n'.format(question_id))
 
-    def generate_test_data(self):
-        pass
+    def generate_test_data(self, num=10000):
+        question_ids = []
+        file_path = os.path.join(os.getcwd(), self._data_all_file_name)
+        with open(file_path, 'r') as f:
+            question_ids.extend(line.strip() for line in f)
+
+        test_question_ids = random.sample(question_ids, num)
+        file_path = os.path.join(os.getcwd(), self._data_test_file_name)
+        with open(file_path, 'w') as f:
+            for question_id in test_question_ids:
+                f.write('{}\n'.format(question_id))
 
 
 if __name__ == '__main__':
     data_generator = DataGenerator()
-    data_generator.generate_all_data()
+    #data_generator.generate_all_data()
     data_generator.generate_test_data()
