@@ -15,11 +15,11 @@ class DataGenerator(object):
         self._data_test_file_name = 'data_test.txt'
 
     def generate_all_data(self):
-        query_min_sql = 'SELECT MIN(`id`) FROM `solution_tag` WHERE `status` = 1'
+        query_min_sql = 'SELECT MIN(`auto_increment_id`) FROM `solution` WHERE `status` = 1'
         results = self._mysql.all(query_min_sql, show_log=False)
         min_id = results[0] if results else -1
 
-        query_max_sql = 'SELECT MAX(`id`) FROM `solution_tag` WHERE `status` = 1'
+        query_max_sql = 'SELECT MAX(`auto_increment_id`) FROM `solution` WHERE `status` = 1'
         results = self._mysql.all(query_max_sql, show_log=False)
         max_id = results[0] if results else -1
 
@@ -27,8 +27,8 @@ class DataGenerator(object):
             print 'No min/max id...'
             return
 
-        print 'Will process data with id between {} and {}'.format(min_id, max_id)
-        sql_fmt = 'SELECT `question_id` FROM `solution_tag` WHERE `id` BETWEEN {} AND {} AND `status` = 1'
+        print 'Will process data with auto_increment_id between {} and {}'.format(min_id, max_id)
+        sql_fmt = 'SELECT `question_id` FROM `solution` WHERE `auto_increment_id` BETWEEN {} AND {} AND `status` = 1'
         ranges = range(min_id, max_id, 10000)
         ranges.append(max_id + 1)
 
@@ -36,12 +36,20 @@ class DataGenerator(object):
             sys.stdout.write('\rProcessing [{}, {})'.format(ranges[i], ranges[i + 1]))
             sys.stdout.flush()
             sql = sql_fmt.format(ranges[i], ranges[i + 1] - 1)
-            results = self._mysql.all(sql, show_log=False)
+            question_ids = self._mysql.all(sql, show_log=False)
+
+            question_tag_info = {}
+            for question_id in question_ids:
+                query_tag_sql_fmt = 'SELECT `tag_id` FROM `solution_tag` ' \
+                          'WHERE `question_id` = \"{}\" AND `tag_id` IS NOT NULL AND `status` = "1"'
+                query_tag_sql = query_tag_sql_fmt.format(question_id)
+                tag_ids = self._mysql.all(query_tag_sql, show_log=False)
+                question_tag_info[question_id] = ','.join(tag_ids)
 
             file_path = os.path.join(os.getcwd(), self._data_all_file_name)
             with open(file_path, 'a') as f:
-                for question_id in results:
-                    f.write('{}\n'.format(question_id))
+                for k, v in question_tag_info.iteritems():
+                    f.write('{}:{}\n'.format(k, v))
 
     def generate_test_data(self, num=10000):
         question_ids = []
@@ -58,5 +66,5 @@ class DataGenerator(object):
 
 if __name__ == '__main__':
     data_generator = DataGenerator()
-    #data_generator.generate_all_data()
-    data_generator.generate_test_data()
+    data_generator.generate_all_data()
+    # data_generator.generate_test_data()
