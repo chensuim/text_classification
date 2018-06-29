@@ -44,27 +44,28 @@ class DataGenerator(object):
                           'WHERE `question_id` = \"{}\" AND `tag_id` IS NOT NULL AND `status` = "1"'
                 query_tag_sql = query_tag_sql_fmt.format(question_id)
                 tag_ids = self._mysql.all(query_tag_sql, show_log=False)
-                question_tag_info[question_id] = ','.join(tag_ids)
+                if tag_ids:
+                    question_tag_info[question_id] = ','.join(tag_ids)
 
             file_path = os.path.join(os.getcwd(), self._data_all_file_name)
             with open(file_path, 'a') as f:
                 for k, v in question_tag_info.iteritems():
                     f.write('{}:{}\n'.format(k, v))
 
-    def generate_test_data(self, num=10000):
-        question_ids = []
+    def generate_test_data(self, num=1000):
+        questions = []
         file_path = os.path.join(os.getcwd(), self._data_all_file_name)
         with open(file_path, 'r') as f:
-            question_ids.extend(line.strip() for line in f)
+            questions.extend(line.strip() for line in f)
 
-        test_question_ids = random.sample(question_ids, num)
+        test_questions = random.sample(questions, num)
         file_path = os.path.join(os.getcwd(), self._data_test_file_name)
         with open(file_path, 'w') as f:
-            for question_id in test_question_ids:
-                f.write('{}\n'.format(question_id))
+            for question in test_questions:
+                f.write('{}\n'.format(question))
 
 
 if __name__ == '__main__':
     data_generator = DataGenerator()
     data_generator.generate_all_data()
-    # data_generator.generate_test_data()
+    data_generator.generate_test_data()
