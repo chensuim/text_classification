@@ -36,7 +36,7 @@ def get_test_data():
             for teach_book_id, _ in (chapter_info.split('-') for chapter_info in chapters_info):
                 teach_book_ids.add(teach_book_id)
 
-            questions_test[question_id].append("chapter{}".format(teach_book_id) for teach_book_id in teach_book_ids)
+            questions_test[question_id].extend("chapter{}".format(teach_book_id) for teach_book_id in teach_book_ids)
 
         if 'A' in tag_types:
             questions_test[question_id].append('difficulty')
@@ -60,7 +60,8 @@ def test_model():
 
     try:
         test_data = get_test_data()
-        label_summary_tags_for_questions(test_data)
+        print test_data
+        # label_summary_tags_for_questions(test_data)
         pass
     except Exception as e:
         _logger.error("exception --->>>: %s", e)
