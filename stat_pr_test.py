@@ -29,7 +29,10 @@ class LabelRecommendStat(object):
         with open(file_path, 'r') as f:
             for line in f:
                 question_id, tags_info, _ = line.split(';')
-                tag_ids = set(tag_id.split('-')[1] if '-' in tag_id else tag_id for tag_id in tags_info.split('$'))
+                tag_ids = set()
+                for tag_ids_info in tags_info.split('$'):
+                    for tag_id in tag_ids_info.split(','):
+                        tag_ids.add(tag_id.split('-')[1] if '-' in tag_id else tag_id)
                 self._questions_tag_info[question_id] = tag_ids
 
     def dump(self):
@@ -53,12 +56,11 @@ class LabelRecommendStat(object):
             for line in lines:
                 f.write(line)
 
-    @staticmethod
-    def stat(file_name):
+    def stat(self):
         precision = 0.0
         recall = 0.0
         count = 0
-        with open(file_name) as f:
+        with open(self._file_name) as f:
             for line in f:
                 _, q_stat = line.split(':')
                 tp, fp, fn = q_stat.split(',')
@@ -74,15 +76,19 @@ class LabelRecommendStat(object):
                 count += 1
                 precision += tp / (tp + fp)
                 recall += tp / (tp + fn)
-        precision /= count
-        recall /= count
+        if count > 0:
+            precision /= count
+            recall /= count
+        else:
+            precision = float('nan')
+            recall = float('nan')
         print 'Precision : {:.2f}'.format(precision)
         print 'Recall    : {:.2f}'.format(recall)
 
 
 if __name__ == '__main__':
     _user = 'ssz_test'
-    _pwd = 'zMhrIuu69ua%',
+    _pwd = 'zMhrIuu69ua%'
     _host = 'rm-2zeiamje1ijw7h0lldo.mysql.rds.aliyuncs.com'
     _port = 3306
     _db = 'shensz_test'
@@ -92,9 +98,9 @@ if __name__ == '__main__':
     start_time = time.time()
     label_recommend_stat.dump()
     end_time = time.time()
-    print '\nDUMP --- {} seconds ---'.format(end_time - start_time)
+    print 'DUMP --- {} seconds ---'.format(end_time - start_time)
 
     start_time = time.time()
     label_recommend_stat.stat()
     end_time = time.time()
-    print '\nSTAT --- {} seconds ---'.format(end_time - start_time)
+    print 'STAT --- {} seconds ---'.format(end_time - start_time)
