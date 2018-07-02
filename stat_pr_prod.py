@@ -109,14 +109,12 @@ if __name__ == '__main__':
 
     label_recommend_stat = LabelRecommendStat()
 
-    '''
     start_time = time.time()
     label_recommend_stat.dump(file_name)
     end_time = time.time()
     print '\nDUMP --- {} seconds ---'.format(end_time - start_time)
-    '''
 
     start_time = time.time()
     label_recommend_stat.stat(file_name)
     end_time = time.time()
-    print '\nSTAT --- {} seconds ---'.format(end_time - start_time)
+    print 'STAT --- {} seconds ---'.format(end_time - start_time)
