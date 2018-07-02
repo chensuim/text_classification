@@ -27,10 +27,10 @@ class DataGenerator(object):
         max_id = results[0] if results else -1
 
         if min_id == -1 or max_id == -1:
-            print 'No min/max id...'
+            print '\nNo min/max id...'
             return
 
-        print 'Will process data with auto_increment_id between {} and {}'.format(min_id, max_id)
+        print '\nWill process data with auto_increment_id between {} and {}'.format(min_id, max_id)
         query_question_sql_fmt = 'SELECT `question_id` FROM `solution` ' \
                                  'WHERE `auto_increment_id` BETWEEN {} AND {} AND `status` = 1'
         ranges = range(min_id, max_id, 10000)
@@ -91,7 +91,7 @@ class DataGenerator(object):
             if 'H' in tag_types and 'A' in tag_types and 'B' in tag_types and 'G' in tag_types:
                 filter_questions.append(question)
 
-        print '#filtered_questions: {}'.format(len(filter_questions))
+        print '\n#filtered_questions: {}'.format(len(filter_questions))
 
         test_questions = random.sample(filter_questions, num)
         file_path = os.path.join(os.getcwd(), self._data_test_file_name)
