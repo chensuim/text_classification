@@ -17,6 +17,10 @@ class DataSourceFactory(object):
         mysql_conf = self._conf['mysql'][self._runtime_mode]
         return MySQLClient(mysql_conf)
 
+    def get_test_mysql_client(self):
+        mysql_conf = self._conf['mysql']['test']
+        return MySQLClient(mysql_conf)
+
     def get_mc_client(self):
         conf = self._conf['memcached'][self._runtime_mode]
         return MCClient(conf['hosts'], default_expire=conf['common_time_expire'])

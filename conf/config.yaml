@@ -1,4 +1,11 @@
 mysql:
+    test:
+        host: ''
+        port: 3307
+        user: 'kongfz'
+        passwd: ''
+        db: 'shensz'
+        charset: 'utf8'
     dev:
         host: ''
         port: 3307
