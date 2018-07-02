@@ -30,3 +30,4 @@ six==1.11.0
 urllib3==1.23
 Werkzeug==0.14.1
 wrapt==1.10.11
+sqlalchemy==1.2.9

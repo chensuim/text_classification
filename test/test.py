@@ -60,7 +60,6 @@ def test_model():
 
     try:
         test_data = get_test_data()
-        print test_data
         label_summary_tags_for_questions(test_data)
     except Exception as e:
         _logger.error("exception --->>>: %s", e)
