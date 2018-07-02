@@ -48,7 +48,7 @@ def label_summary_tags_for_questions(questions_to_label):
             _logger.error("ES_QUERY_TAG的锅:%s"%(v))
             continue
         for tag_type, tag_id_list in result_dict.iteritems():
-            if tag_type in [1, 2, 3, 4, 5] :
+            if tag_type in [1, 2, 3, 4, 5]:
                 if "chapter" + str(tag_type) in questions_to_label_value:
                     for chapter_id in tag_id_list:
                         value = tuple([question_id, tag_type, chapter_id])
