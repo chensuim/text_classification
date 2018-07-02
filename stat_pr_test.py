@@ -1,6 +1,4 @@
-#!/Users/jungle/.virtualenvs/dev/bin python
 # -*- coding: utf-8 -*-
-
 from sqlalchemy import create_engine
 import sys
 import os
