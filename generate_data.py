@@ -2,6 +2,7 @@
 import sys
 import os
 import random
+import time
 from lib.utils.data_source_factory import DataSourceFactory
 
 reload(sys)
@@ -78,8 +79,6 @@ class DataGenerator(object):
                 for question_tag_info in question_tags_info:
                     f.write('{}\n'.format(question_tag_info))
 
-            break
-
     def generate_test_data(self, num=1000):
         questions = []
         file_path = os.path.join(os.getcwd(), self._data_all_file_name)
@@ -103,5 +102,11 @@ class DataGenerator(object):
 
 if __name__ == '__main__':
     data_generator = DataGenerator()
+
+    start_time = time.time()
     data_generator.generate_all_data()
+    print '\nGenerate all data --- {} seconds ---'.format(time.time() - start_time)
+
+    start_time = time.time()
     data_generator.generate_test_data()
+    print '\nGenerate test data --- {} seconds ---'.format(time.time() - start_time)
