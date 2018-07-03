@@ -117,3 +117,42 @@ class MySQLClient(object):
             conn.close()
         return []
 
+
+@singleton
+class MySQLTestClient(object):
+    """
+    MySQLTest客户端封装。
+    """
+    # 高内聚、低耦合。logger应该内敛，不应该传来传去
+    def __init__(self, conf):
+        # 增加execute_with_log方法，只需执行一次
+        cursors.Cursor.execute_with_log = execute_with_log
+        self._logger = logging.getLogger(__name__)
+        try:
+            self._pool = PooledDB(MySQLdb, 5, **conf)
+        except Exception as e:
+            self._logger.error('Database error: ', exc_info=True)
+            exit()
+
+    def _get_connect_from_pool(self):
+        return self._pool.connection()
+
+    def executemany(self, sql, datas):
+        """
+        Args:
+            sql: SQL语句
+            datas: 数据
+        Returns:
+            None
+        """
+        try:
+            conn = self._get_connect_from_pool()
+            cursor = conn.cursor()
+            cursor.executemany(sql, datas)
+            conn.commit()
+        except Exception as e:
+            self._logger.error('Database error: ', exc_info=True)
+            conn.rollback()
+        finally:
+            cursor.close()
+            conn.close()

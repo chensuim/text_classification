@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from config_loader import ConfigLoader
-from lib.data.mysql.mysql import MySQLClient
+from lib.data.mysql.mysql import MySQLClient, MySQLTestClient
 from lib.data.mc.mc import MCClient
 
 
@@ -19,7 +19,7 @@ class DataSourceFactory(object):
 
     def get_test_mysql_client(self):
         mysql_conf = self._conf['mysql']['test']
-        return MySQLClient(mysql_conf)
+        return MySQLTestClient(mysql_conf)
 
     def get_mc_client(self):
         conf = self._conf['memcached'][self._runtime_mode]
