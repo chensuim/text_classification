@@ -1,15 +1,15 @@
 mysql:
     test:
-        host: ''
-        port: 3307
-        user: 'kongfz'
+        host: 'rm-2zeiamje1ijw7h0lldo.mysql.rds.aliyuncs.com'
+        port: 3306
+        user: 'ssz_test'
         passwd: ''
-        db: 'shensz'
+        db: 'shensz_test'
         charset: 'utf8'
     dev:
-        host: ''
-        port: 3307
-        user: 'kongfz'
+        host: 'rm-2zeiamje1ijw7h0lldo.mysql.rds.aliyuncs.com'
+        port: 3306
+        user: 'ssz_test'
         passwd: ''
         db: 'shensz'
         charset: 'utf8'
@@ -109,9 +109,11 @@ suited_confidence: 10
 # 将知识点阈值分级控制：top1:0;top2,3:5;top4,5:10
 keypoint_confidence: 5
 es_query_topN: 5
+# 公式搜索结果所占用的比重，相对于es搜索结果而言
+formula_weight: 20
 
 es_query_api:
-    dev_url_api: 'http://192.168.0.3:9200/shensz/solution/_search'
+    dev_url_api: 'http://10.200.2.12:9200/shensz/solution/_search'
     prod_url_api: 'http://10.0.137.71:9200/shensz/solution/_search'
     content-type: 'application/json'
     Cookie: 'username=%E6%9D%8E%E5%BB%BA%E6%88%90ss; school=607389; username_pinyin=lijianchengss;
@@ -121,5 +123,5 @@ es_query_api:
     Hm_lpvt_027462e29e1dbce3fcb2a6b8b5a08280=1500443084'
 
 formula_query_api:
-    dev_url_api: 'http://formulasim.uae.shensz.local/lquestion'
+    dev_url_api: 'http://127.0.0.1:5124/lquestion'
     prod_url_api: 'http://10.0.137.69:9998/lquestion'

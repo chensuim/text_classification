@@ -37,6 +37,8 @@ class TagRecommender(object):
         self._suited_es_query_num = conf['suited_es_query_num']
         # es知识点查询数量
         self._keypoint_es_query_num = conf['keypoint_es_query_num']
+        # 公式搜索结果所占用的比重，相对于es搜索结果而言
+        self._formula_weight = conf['formula_weight']
         # 最大查询数量
         self._max_es_query_num = max([self._chapter_es_query_num, self._diff_es_query_num,
                                       self._suited_es_query_num, self._keypoint_es_query_num])
@@ -223,23 +225,22 @@ class TagRecommender(object):
         chapter_title, diff_dict, suit_dict, keypoint_dict = self._get_tag(question_id, result_dict)
 
         # 添加基于公式推荐的结果
-        reference_by_formula_weight = 0.8
         referred_tags_by_formula = self._tag_recommender_by_formula.get_referred_result(question_id)
         # 更新chapter_title
         for teach_book_id, tags in referred_tags_by_formula['chapter'].iteritems():
             for score, tag_id in tags:
-                chapter_title[tag_id]['score'] += score
+                chapter_title[tag_id]['score'] += self._formula_weight * score
                 chapter_title[tag_id]['chapter_id'] = tag_id
                 chapter_title[tag_id]['teach_book_id'] = teach_book_id
         # 更新diff_dict
         for score, tag_id in referred_tags_by_formula['difficulty']:
-            diff_dict[tag_id] += reference_by_formula_weight * score
+            diff_dict[tag_id] += self._formula_weight * score
         # 更新suit_dict
         for score, tag_id in referred_tags_by_formula['suit']:
-            suit_dict[tag_id] += reference_by_formula_weight * score
+            suit_dict[tag_id] += self._formula_weight * score
         # 更新keypoint_dict
         for score, tag_id in referred_tags_by_formula['key_point']:
-            keypoint_dict[tag_id] += reference_by_formula_weight * score
+            keypoint_dict[tag_id] += self._formula_weight * score
 
         tag_result_dict = self._sort_result_tag(chapter_title, diff_dict, suit_dict, keypoint_dict, topN)
         return tag_result_dict
