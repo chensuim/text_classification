@@ -101,7 +101,7 @@ def generate_test_data(all_data_fn, test_data_fn, num=1000):
         if 'H' in tag_types and 'A' in tag_types and 'B' in tag_types and 'G' in tag_types:
             filter_questions.append(question)
 
-    print '\n#filtered_questions: {}'.format(len(filter_questions))
+    print '#filtered_questions: {}'.format(len(filter_questions))
 
     test_questions = random.sample(filter_questions, num)
     file_path = os.path.join(os.getcwd(), test_data_fn)

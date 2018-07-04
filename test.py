@@ -36,7 +36,7 @@ def stat_pr_test():
 
 @clock()
 def test():
-    test_model()
+    test_model(test_data_fn)
 
 
 @clock()
