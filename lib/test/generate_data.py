@@ -30,6 +30,8 @@ def get_question_ids_patch(connection):
         print 'No min/max id...'
         return
 
+    print 'Will process questions with auto_increment_id between [{}, {}]'.format(min_id, max_id)
+
     sql_fmt = 'SELECT `question_id` FROM `solution` WHERE `auto_increment_id` BETWEEN {} AND {} AND `status` = 1'
     ranges = range(min_id, max_id, 1000)
     ranges.append(max_id + 1)
