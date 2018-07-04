@@ -10,7 +10,7 @@ from lib.utils.singleton import *
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('debug.mysql')
 
 
 def execute_with_log(self, sql, data=()):
@@ -32,7 +32,7 @@ class MySQLClient(object):
     def __init__(self, conf):
         # 增加execute_with_log方法，只需执行一次
         cursors.Cursor.execute_with_log = execute_with_log
-        self._logger = logging.getLogger(__name__)
+        self._logger = logger
         try:
             self._pool = PooledDB(MySQLdb, 5, **conf)
         except Exception as e:
@@ -127,7 +127,7 @@ class MySQLTestClient(object):
     def __init__(self, conf):
         # 增加execute_with_log方法，只需执行一次
         cursors.Cursor.execute_with_log = execute_with_log
-        self._logger = logging.getLogger(__name__)
+        self._logger = logger
         try:
             self._pool = PooledDB(MySQLdb, 5, **conf)
         except Exception as e:

@@ -14,7 +14,7 @@ sys.setdefaultencoding('utf-8')
 
 class TagRecommenderByFormula(object):
     def __init__(self):
-        self._logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger('label_tag.formula')
         self._runtime_mode = config.runtime_mode
 
         if self._runtime_mode == 'prod':

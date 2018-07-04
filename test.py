@@ -1,71 +1,75 @@
 # -*- coding: utf-8 -*-
-import logging.config
 import sys
-import os
-import time
-from collections import defaultdict
+import argparse
 from lib.utils.config_loader import config
-from lib.dal.label_questions_info import label_summary_tags_for_questions
+from lib.utils.clock import clock
+from lib.test.generate_data import generate_all_data, generate_test_data
+from lib.test.stat_pr import stat_prod, stat_test
+from lib.test.test_model import test_model
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-# 配置实例
-conf = config.conf
-logging.getLogger("requests").setLevel(logging.ERROR)
-logging.config.dictConfig(conf['web_logging'])
-_logger = logging.getLogger("root." + __name__)
+test_data_fn = r'data_test.txt'
+all_data_fn = r'data_all.txt'
 
 
-def get_test_data():
-    """
-    RECORD FORMAT: question_id;teach_book_id-chapter_id,$difficult_id,$suit_id,$key_point_id,;tag_type,
-    :return:
-    """
-    questions_info = []
-    file_path = os.path.join(os.getcwd(), r'data_test.txt')
-    with open(file_path, 'r') as f:
-        questions_info.extend(line.split(';') for line in f)
-
-    questions_test = defaultdict(list)
-
-    for question_id, tag_ids, tag_types in questions_info:
-        if 'H' in tag_types:
-            chapters_info = tag_ids.split('$')[0].split(',')
-            teach_book_ids = set()
-            for teach_book_id, _ in (chapter_info.split('-') for chapter_info in chapters_info):
-                teach_book_ids.add(teach_book_id)
-
-            questions_test[question_id].extend("chapter{}".format(teach_book_id) for teach_book_id in teach_book_ids)
-
-        if 'A' in tag_types:
-            questions_test[question_id].append('difficulty')
-
-        if 'B' in tag_types:
-            questions_test[question_id].append('suit')
-
-        if 'G' in tag_types:
-            questions_test[question_id].append('keypoint')
-
-    return questions_test
+@clock()
+def generate_whole_data_with_labels():
+    generate_all_data(all_data_fn)
 
 
-def test_model():
-    """
-    测试模型
-    :return:
-    """
+@clock()
+def generate_test_data_with_labels():
+    generate_test_data(all_data_fn, test_data_fn)
 
-    _logger.info('start to test new model...')
 
-    try:
-        test_data = get_test_data()
-        label_summary_tags_for_questions(test_data)
-    except Exception as e:
-        _logger.error("exception --->>>: %s", e)
+@clock()
+def stat_pr_prod():
+    stat_prod()
+
+
+@clock()
+def stat_pr_test():
+    stat_test(test_data_fn)
+
+
+@clock()
+def test():
+    test_model()
+
+
+@clock()
+def debug():
+    mysql_conf = config.conf['mysql']['test']
+    print type(mysql_conf)
+    print mysql_conf
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    test_model()
-    _logger.info('finish testing new model, elapsed time: %.2fs', (time.time() - start_time))
+    parser = argparse.ArgumentParser(description='test model arguments description')
+    parser.add_argument('--G', action="store_true", help='generate whole data with labels')
+    parser.add_argument('--g', action="store_true", help='generate test data with labels')
+    parser.add_argument('--S', action="store_true", help='stat precision/recall for prod env')
+    parser.add_argument('--s', action="store_true", help='stat precision/recall for test env')
+    parser.add_argument('--t', action="store_true", help='test model')
+    parser.add_argument('--d', action="store_true", help='debug')
+
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    args = parser.parse_args()
+
+    if args.G:
+        generate_whole_data_with_labels()
+    elif args.g:
+        generate_test_data_with_labels()
+    elif args.S:
+        stat_pr_prod()
+    elif args.s:
+        stat_pr_test()
+    elif args.t:
+        test()
+    elif args.d:
+        debug()

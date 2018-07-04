@@ -1,13 +1,6 @@
 # 批量自动聚类&标签推荐
 对题目推荐聚类，标签并写入数据库
 
-
-## 相关文档
-
-* [大搜索专项](http://doc.shensz.local/pages/viewpage.action?pageId=16812274)
-* [批量聚类标签推荐研发设计](http://doc.shensz.local/pages/viewpage.action?pageId=16829245)
-
-
 # 目录结构 
 推荐                                 | 描述
 ------------                        | ------------
@@ -20,8 +13,8 @@ lib/dal/dao/question.py             | 包括查询，插入等操作
 
 运行                                | 描述
 ------------                        | ------------
-bin/label_chapter_info.py           | 标签推荐：数据库获取题目，解析推荐结果，写入数据库solution_tag
-bin/label_cluster_info.py           | 聚类推荐：数据库获取题目，解析推荐结果，写入数据库solution_cluster_similar
+app.py                              | 批量自动聚类&标签推荐
+test.py          | 测试新模型，统计准确率、召回率
 
 # 运行方法    
 crontab

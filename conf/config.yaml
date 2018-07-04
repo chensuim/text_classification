@@ -80,16 +80,16 @@ web_logging:
             maxBytes: 104857600
             backupCount: 30
     loggers:
-        root:
+        debug:
             level: DEBUG
             handlers: [console, info_file_handler, error_file_handler]
-        cluster:
+        label_cluster:
             level: INFO
             handlers: [cluster_file_handle]
-        tag:
+        label_tag:
             level: INFO
             handlers: [tag_file_handle]
-        insertdb:
+        db_insertion:
             level: INFO
             handlers: [insert_data_file_handle]
 

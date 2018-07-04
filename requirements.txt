@@ -27,7 +27,7 @@ PyYAML==3.12
 requests==2.19.1
 singledispatch==3.4.0.3
 six==1.11.0
+SQLAlchemy==1.2.9
 urllib3==1.23
 Werkzeug==0.14.1
 wrapt==1.10.11
-sqlalchemy==1.2.9

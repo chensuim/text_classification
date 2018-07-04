@@ -10,7 +10,7 @@ from recommend_cluster import ClusterRecommender
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-_logger = logging.getLogger("root."+__name__)
+_logger = logging.getLogger('debug.label_questions_info')
 tag_recommender = TagRecommender()
 es_cluster = ClusterRecommender()
 

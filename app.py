@@ -10,9 +10,8 @@ sys.setdefaultencoding('utf8')
 
 # 配置实例
 conf = config.conf
-logging.getLogger("requests").setLevel(logging.ERROR)
 logging.config.dictConfig(conf['web_logging'])
-_logger = logging.getLogger("root." + __name__)
+_logger = logging.getLogger('debug.app')
 
 
 def main(year):

@@ -38,8 +38,7 @@ class ClusterRecommender(object):
         # 聚类TOPN
         self._es_query_topN = conf['es_query_topN']
         # 日志：cluster日志主要保存聚类推荐结果
-        self._logger = logging.getLogger("root." + __name__)
-        self._logger_cluster = logging.getLogger("cluster")
+        self._logger_cluster = logging.getLogger("label_cluster")
         # 获取头文件
         self.headers, self.url_api = self._get_headers()
 

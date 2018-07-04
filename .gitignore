@@ -1,5 +1,4 @@
 .idea
 *.pyc
 *.txt
-*.dat
 logs

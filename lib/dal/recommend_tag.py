@@ -45,8 +45,7 @@ class TagRecommender(object):
         # 标签TOPN
         self._es_query_topN = conf['es_query_topN']
         # 日志：tag日志主要保存推荐结果
-        self._logger = logging.getLogger("root."+__name__)
-        self._logger_tag = logging.getLogger("tag")
+        self._logger_tag = logging.getLogger("label_tag")
         # 获取文件头
         self.headers, self.url_api = self._get_headers()
 
