@@ -52,7 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--g', action="store_true", help='generate test data with labels')
     parser.add_argument('--S', action="store_true", help='stat precision/recall for prod env')
     parser.add_argument('--s', action="store_true", help='stat precision/recall for test env')
-    parser.add_argument('--t', action="store_true", help='test model')
+    parser.add_argument('--t', action="store_true", help='test model, update write_info_to_mysql.py before run test')
     parser.add_argument('--d', action="store_true", help='debug')
 
     if len(sys.argv) == 1:
