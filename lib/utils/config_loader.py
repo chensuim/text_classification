@@ -9,6 +9,9 @@ import logging
 if len(logging.getLogger().handlers) == 0:
     logging.basicConfig(level=logging.DEBUG)
 
+# 设定requests库log级别
+logging.getLogger("requests").setLevel(logging.ERROR)
+
 
 class ConfigLoader(object):
     """读取yaml配置文件"""
