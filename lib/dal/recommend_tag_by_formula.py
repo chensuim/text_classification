@@ -52,28 +52,31 @@ class TagRecommenderByFormula(object):
             self._logger.error(error_fmt_str, self._formula_query_url, question_id, resp_dict['status'])
         else:
             for question in resp_dict['data']:
-                id_ = question['question_id']
+                _id = question['question_id']
                 score = question['score']
 
+                if _id == question_id:
+                    continue
+
                 # cluster tag
-                cluster_tag_info = question_tag_cluster(id_)
+                cluster_tag_info = question_tag_cluster(_id)
                 cluster_tag = [(score, cluster_id) for cluster_id in cluster_tag_info]
 
                 # chapter tag
-                chapter_tag_info = question_tag_chapter(id_)
+                chapter_tag_info = question_tag_chapter(_id)
                 for teach_book_id, chapter_id in chapter_tag_info:
                     chapter_tag[teach_book_id].append((score, chapter_id))
 
                 # difficulty tag
-                difficulty_tag_info = question_tag_difficulty(id_)
+                difficulty_tag_info = question_tag_difficulty(_id)
                 difficulty_tag = [(score, difficulty_id) for difficulty_id in difficulty_tag_info]
 
                 # suit tag
-                suit_tag_info = question_tag_suit(id_)
+                suit_tag_info = question_tag_suit(_id)
                 suit_tag = [(score, suit_id) for suit_id in suit_tag_info]
 
                 # key point tag
-                key_point_tag_info = question_tag_key_point(id_)
+                key_point_tag_info = question_tag_key_point(_id)
                 key_point_tag = [(score, key_point_id) for key_point_id in key_point_tag_info]
 
         return {'cluster': cluster_tag,
