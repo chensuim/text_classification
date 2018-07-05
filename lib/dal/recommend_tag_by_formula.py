@@ -48,8 +48,8 @@ class TagRecommenderByFormula(object):
         key_point_tag = []
 
         if resp_dict['status'] is not True:
-            error_fmt_str = 'ReferrerByFormula query error. Url: {}, question_id: {}, response: {}'
-            self._logger.error(error_fmt_str, self._formula_query_url, question_id, resp_dict['status'])
+            error_str_fmt = 'ReferrerByFormula query error. Question_id: {}'
+            self._logger.error(error_str_fmt.format(question_id))
         else:
             for question in resp_dict['data']:
                 _id = question['question_id']

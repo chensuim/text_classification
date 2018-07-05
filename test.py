@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 import argparse
+import logging
 from lib.utils.config_loader import config
 from lib.utils.clock import clock
 from lib.test.generate_data import generate_all_data, generate_test_data
@@ -12,6 +13,10 @@ sys.setdefaultencoding('utf8')
 
 test_data_fn = r'data_test.txt'
 all_data_fn = r'data_all.txt'
+
+# 设定requests库log级别
+logging.getLogger("requests").setLevel(logging.ERROR)
+logging.config.dictConfig(config.conf['web_logging'])
 
 
 @clock()
