@@ -10,7 +10,7 @@ from lib.utils.singleton import *
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-logger = logging.getLogger('debug.mysql')
+logger = logging.getLogger('data_access.mysql')
 
 
 def execute_with_log(self, sql, data=()):
@@ -36,7 +36,7 @@ class MySQLClient(object):
         try:
             self._pool = PooledDB(MySQLdb, 5, **conf)
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
             exit()
 
     def _get_connect_from_pool(self):
@@ -57,7 +57,7 @@ class MySQLClient(object):
             cursor.execute_with_log(sql, data)
             conn.commit()
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
             conn.rollback()
         finally:
             cursor.close()
@@ -77,7 +77,7 @@ class MySQLClient(object):
             cursor.executemany(sql, datas)
             conn.commit()
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
             conn.rollback()
         finally:
             cursor.close()
@@ -111,7 +111,7 @@ class MySQLClient(object):
                     results.append(vals)
             return results
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
         finally:
             cursor.close()
             conn.close()
@@ -131,7 +131,7 @@ class MySQLTestClient(object):
         try:
             self._pool = PooledDB(MySQLdb, 5, **conf)
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
             exit()
 
     def _get_connect_from_pool(self):
@@ -151,7 +151,7 @@ class MySQLTestClient(object):
             cursor.executemany(sql, datas)
             conn.commit()
         except Exception as e:
-            self._logger.error('Database error: ', exc_info=True)
+            self._logger.error('Database error: ' + e, exc_info=True)
             conn.rollback()
         finally:
             cursor.close()

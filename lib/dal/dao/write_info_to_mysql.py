@@ -5,7 +5,7 @@ from lib.utils.data_source_factory import DataSourceFactory
 _mc = DataSourceFactory().get_mc_client()
 _mysql = DataSourceFactory().get_mysql_client()
 # _mysql = DataSourceFactory().get_test_mysql_client()
-_logger = logging.getLogger("db_insertion")
+_logger = logging.getLogger("data_access")
 
 
 def set_question_cluster(question_clusters):

@@ -65,11 +65,11 @@ web_logging:
             filename: logs/web/cluster_result.log
             maxBytes: 104857600
             backupCount: 30
-        insert_data_file_handle:
+        data_access_file_handle:
             class : logging.handlers.RotatingFileHandler
             formatter: simpleFormater
             level: INFO
-            filename: logs/web/insert_data_db.log
+            filename: logs/web/data_access.log
             maxBytes: 104857600
             backupCount: 30
         tag_file_handle:
@@ -89,9 +89,9 @@ web_logging:
         label_tag:
             level: INFO
             handlers: [tag_file_handle]
-        db_insertion:
+        data_access:
             level: INFO
-            handlers: [insert_data_file_handle]
+            handlers: [data_access_file_handle]
 
 cluster_es_query_num: 15
 cluster_es_query_keypoint_num: 15

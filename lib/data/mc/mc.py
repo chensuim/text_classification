@@ -14,7 +14,7 @@ class MCClient(object):
     def __init__(self, hosts, default_expire=0):
         self._mc = pylibmc.Client(hosts, binary=True, behaviors={"tcp_nodelay": True, "ketama": True})
         self._default_expire = default_expire
-        self._logger = logging.getLogger('debug.mc')
+        self._logger = logging.getLogger('data_access.mc')
 
     def __del__(self):
         self._mc.disconnect_all()
