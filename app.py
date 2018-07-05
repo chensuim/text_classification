@@ -8,6 +8,8 @@ from lib.dal import label_questions_info as label
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+# 设定requests库log级别
+logging.getLogger("requests").setLevel(logging.ERROR)
 # 配置实例
 conf = config.conf
 logging.config.dictConfig(conf['web_logging'])
