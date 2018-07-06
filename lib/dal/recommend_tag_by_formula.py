@@ -113,11 +113,11 @@ class TagRecommenderByFormula(object):
             if tag_type == 'chapter':
                 referred_tags[tag_type] = {}
                 for k, v in tag_values.iteritems():
-                    topn_tag = min(topn, len(v))
-                    referred_tags[tag_type][k] = [tag_id for tag_id, _ in v.most_common(topn_tag)]
+                    size = min(topn, len(v))
+                    referred_tags[tag_type][k] = [tag_id for tag_id, _ in v.most_common(size)] if v else []
             else:
-                topn_tag = min(topn, len(tag_values))
-                referred_tags[tag_type] = [tag_id for tag_id, _ in tag_values.most_common(topn_tag)]
+                size = min(topn, len(tag_values))
+                referred_tags[tag_type] = [tag_id for tag_id, _ in tag_values.most_common(size)] if tag_values else []
 
         return referred_tags
 
