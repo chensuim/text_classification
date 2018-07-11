@@ -110,7 +110,7 @@ suited_confidence: 10
 keypoint_confidence: 5
 es_query_topN: 5
 # 公式搜索结果所占用的比重，相对于es搜索结果而言
-formula_weight: 20
+formula_weight: 0.06
 
 es_query_api:
     dev_url_api: 'http://10.200.2.12:9200/shensz/solution/_search'
