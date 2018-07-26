@@ -13,11 +13,11 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-def get_words_dict(top1k_words_fn):
+def get_words_dict(topk_words_fn):
     words_dict = {}
     count = 1
 
-    with open(top1k_words_fn) as f:
+    with open(topk_words_fn) as f:
         for line in f:
             word = line.rstrip()
             words_dict[word] = count
@@ -35,11 +35,11 @@ def get_vector_from_text(words_dict, text):
     return vector
 
 
-def load_data(question_texts_fn, num=1000, train_percentage=0.8):
+def load_data(question_texts_fn, num=60000, train_percentage=0.95):
     X = []
     Y = []
 
-    words_dict = get_words_dict(r'top1k_words.txt')
+    words_dict = get_words_dict(r'topk_words.txt')
     count = 0
 
     with open(question_texts_fn, 'r') as f:
@@ -73,7 +73,7 @@ def load_data(question_texts_fn, num=1000, train_percentage=0.8):
 
 def train():
     # get train and test data
-    top_words = 1000
+    top_words = 5000
     (X_train, Y_train), (X_test, Y_test) = load_data(r'question_texts.txt')
     max_review_length = 500
     X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
@@ -87,7 +87,7 @@ def train():
     class_num = 4
     model = Sequential()
     model.add(Embedding(top_words, embedding_vector_length, input_length=max_review_length))
-    model.add(LSTM(100))
+    model.add(LSTM(500))
     model.add(Dense(class_num, activation='softmax'))
 
     # compile and train model
