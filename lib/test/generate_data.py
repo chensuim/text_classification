@@ -45,6 +45,43 @@ def get_question_ids_patch(connection):
         yield [result[0] for result in results] if results else None
 
 
+def generate_data_with_text_and_difficulty(question_texts_fn):
+    mysql_conf = config.conf['mysql'][config.runtime_mode]
+    connection = connect_db(**mysql_conf)
+
+    ids_patch_generator = get_question_ids_patch(connection)
+    for ids in ids_patch_generator:
+        if not ids:
+            continue
+
+        lines = []
+        for _id in ids:
+            sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, `st`.`tag_id` ' \
+                      'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
+                      'ON `ss`.`question_id` = `st`.`question_id` ' \
+                      'WHERE `ss`.`question_id` = \"{}\" AND `st`.`tag_type` = \"A\" AND `st`.`status` = 1'
+            sql = sql_fmt.format(_id)
+            results = connection.execute(sql).fetchall()
+
+            if not results:
+                continue
+
+            title, analysis, remark, difficulty = results[0]
+
+            question_text = '{}{}{}'.format(title, analysis, remark)
+            question_text = question_text.replace('\r', '')
+            question_text = question_text.replace('\n', '')
+
+            difficulty = difficulty[-1]  # convert A1 to 1
+
+            lines.append('{};;{};;{}\n'.format(_id, difficulty[-1], question_text))
+
+        file_path = os.path.join(os.getcwd(), question_texts_fn)
+        with open(file_path, 'a+') as f:
+            for line in lines:
+                f.write(line)
+
+
 def generate_all_data(all_data_fn):
     mysql_conf = config.conf['mysql'][config.runtime_mode]
     connection = connect_db(**mysql_conf)

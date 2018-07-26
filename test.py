@@ -4,18 +4,19 @@ import argparse
 import logging
 from lib.utils.config_loader import config
 from lib.utils.clock import clock
-from lib.test.generate_data import generate_all_data, generate_test_data
+from lib.test.generate_data import generate_all_data, generate_test_data, generate_data_with_text_and_difficulty
 from lib.test.stat_pr import stat_prod, stat_test
 from lib.test.test_model import test_model
+from lib.train.train_difficulty_model import train
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 test_data_fn = r'data_test.txt'
 all_data_fn = r'data_all.txt'
+question_texts_fn = r'question_texts.txt'
 
 # 设定requests库log级别
-logging.getLogger("requests").setLevel(logging.ERROR)
 logging.config.dictConfig(config.conf['web_logging'])
 
 
@@ -46,9 +47,8 @@ def test():
 
 @clock()
 def debug():
-    mysql_conf = config.conf['mysql']['test']
-    print type(mysql_conf)
-    print mysql_conf
+    # generate_data_with_text_and_difficulty(question_texts_fn)
+    train()
 
 
 if __name__ == '__main__':

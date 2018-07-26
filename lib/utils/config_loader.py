@@ -11,6 +11,7 @@ if len(logging.getLogger().handlers) == 0:
 
 # 设定requests库log级别
 logging.getLogger("requests").setLevel(logging.ERROR)
+logging.getLogger("matplotlib").setLevel(logging.ERROR)
 
 
 class ConfigLoader(object):
