@@ -2,7 +2,7 @@
 import sys
 import numpy as np
 import re
-import jieba
+from bz2 import BZ2File as b2f
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -13,24 +13,28 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-def get_words_dict(topk_words_fn):
-    words_dict = {}
-    count = 1
+def read_words_vector(path, topn=635974):
+    lines_num, dim = 0, 0
+    vectors = {}
+    f = b2f(path)
+    first_line = True
+    for line in f:
+        if first_line:
+            first_line = False
+            dim = int(line.rstrip().split()[1])
+            continue
+        lines_num += 1
+        tokens = line.rstrip().split(' ')
+        vectors[tokens[0]] = np.asarray([float(x) for x in tokens[1:]])
+        if topn != 0 and lines_num >= topn:
+            break
+    return vectors, dim
 
-    with open(topk_words_fn) as f:
-        for line in f:
-            word = line.rstrip()
-            words_dict[word] = count
-            count += 1
 
-    return words_dict
-
-
-def get_vector_from_text(words_dict, text):
+def get_vector_from_text(words_vector_dict, text):
     vector = []
-    seg_list = jieba.cut(text, cut_all=False)
-    for seg in seg_list:
-        vector.append(words_dict.get(seg, 0))
+    for c in text:
+        vector.append(words_vector_dict.get(c, [0] * 300))
 
     return vector
 
@@ -39,7 +43,7 @@ def load_data(question_texts_fn, num=60000, train_percentage=0.95):
     X = []
     Y = []
 
-    words_dict = get_words_dict(r'topk_words.txt')
+    words_vector_dict, _ = read_words_vector(r'sgns.baidubaike.bigram-char.bz2')
     count = 0
 
     with open(question_texts_fn, 'r') as f:
@@ -54,7 +58,7 @@ def load_data(question_texts_fn, num=60000, train_percentage=0.95):
             text = ''.join(re.findall(ur'[\u4e00-\u9fff]+', text))
             difficulty = int(difficulty) - 1
 
-            feature = get_vector_from_text(words_dict, text)
+            feature = get_vector_from_text(words_vector_dict, text)
             predict = [0 if i != difficulty else 1 for i in range(4)]
 
             X.append(feature)
@@ -73,21 +77,15 @@ def load_data(question_texts_fn, num=60000, train_percentage=0.95):
 
 def train():
     # get train and test data
-    top_words = 5000
     (X_train, Y_train), (X_test, Y_test) = load_data(r'question_texts.txt')
-    max_review_length = 500
-    X_train = sequence.pad_sequences(X_train, maxlen=max_review_length)
-    X_test = sequence.pad_sequences(X_test, maxlen=max_review_length)
 
     print X_train.shape
     print Y_train.shape
 
     # create sequence model
-    embedding_vector_length = 32
     class_num = 4
     model = Sequential()
-    model.add(Embedding(top_words, embedding_vector_length, input_length=max_review_length))
-    model.add(LSTM(500))
+    model.add(LSTM(256, input_dim=300, return_sequences=False))
     model.add(Dense(class_num, activation='softmax'))
 
     # compile and train model
