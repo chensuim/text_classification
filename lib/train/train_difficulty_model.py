@@ -16,34 +16,35 @@ sys.setdefaultencoding('utf8')
 def read_words_vector(path, topn=635974):
     lines_num, dim = 0, 0
     vectors = {}
-    f = b2f(path)
     first_line = True
-    for line in f:
-        if first_line:
-            first_line = False
-            dim = int(line.rstrip().split()[1])
-            continue
-        lines_num += 1
-        tokens = line.rstrip().split(' ')
-        vectors[tokens[0]] = np.asarray([float(x) for x in tokens[1:]])
-        if topn != 0 and lines_num >= topn:
-            break
+    with open(path, 'r') as f:
+        for line in f:
+            if first_line:
+                first_line = False
+                dim = int(line.rstrip().split()[1])
+                continue
+            lines_num += 1
+            tokens = line.rstrip().split(' ')
+            vectors[tokens[0].decode('utf-8')] = [float(x) for x in tokens[1:]]
+            if topn != 0 and lines_num >= topn:
+                break
+
     return vectors, dim
 
 
 def get_vector_from_text(words_vector_dict, text):
     vector = []
     for c in text:
-        vector.append(words_vector_dict.get(c, [0] * 300))
+        vector.append(words_vector_dict[c])
 
     return vector
 
 
-def load_data(question_texts_fn, num=60000, train_percentage=0.95):
+def load_data(question_texts_fn, num=8000, train_percentage=0.95):
     X = []
     Y = []
 
-    words_vector_dict, _ = read_words_vector(r'sgns.baidubaike.bigram-char.bz2')
+    words_vector_dict, _ = read_words_vector(r'word2vec.txt')
     count = 0
 
     with open(question_texts_fn, 'r') as f:
@@ -64,6 +65,7 @@ def load_data(question_texts_fn, num=60000, train_percentage=0.95):
             X.append(feature)
             Y.append(predict)
 
+    X = sequence.pad_sequences(X, maxlen=800)
     X = np.array(X)
     Y = np.array(Y)
 
@@ -91,7 +93,7 @@ def train():
     # compile and train model
     model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
     print(model.summary())
-    model.fit(X_train, Y_train, epochs=3, batch_size=16)
+    model.fit(X_train, Y_train, epochs=4, batch_size=128)
 
     # test model
     scores = model.evaluate(X_test, Y_test, verbose=0)
