@@ -40,7 +40,7 @@ def get_vector_from_text(words_vector_dict, text):
     return vector
 
 
-def load_data(question_texts_fn, num=8000, train_percentage=0.95):
+def load_data(question_texts_fn, num=10000, train_percentage=0.95):
     X = []
     Y = []
 
@@ -65,7 +65,7 @@ def load_data(question_texts_fn, num=8000, train_percentage=0.95):
             X.append(feature)
             Y.append(predict)
 
-    X = sequence.pad_sequences(X, maxlen=800)
+    X = sequence.pad_sequences(X, maxlen=600)
     X = np.array(X)
     Y = np.array(Y)
 
@@ -87,14 +87,17 @@ def train():
     # create sequence model
     class_num = 4
     model = Sequential()
-    model.add(LSTM(256, input_dim=300, return_sequences=False))
+    model.add(LSTM(64, input_dim=300, return_sequences=False))
     model.add(Dense(class_num, activation='softmax'))
 
     # compile and train model
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    model.compile(loss='categorical_crossentropy', optimizer='Adamax', metrics=['accuracy'])
     print(model.summary())
-    model.fit(X_train, Y_train, epochs=4, batch_size=128)
+    model.fit(X_train, Y_train, epochs=32, batch_size=256)
 
     # test model
     scores = model.evaluate(X_test, Y_test, verbose=0)
     print("Accuracy: %.2f%%" % (scores[1] * 100))
+
+    model.save('model_weight.h5')
+
