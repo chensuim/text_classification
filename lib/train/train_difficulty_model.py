@@ -19,14 +19,14 @@ def train():
     # create LSTM model
     class_num = 4
     model = Sequential()
-    model.add(LSTM(64, input_dim=300, return_sequences=False))
+    model.add(LSTM(128, input_shape=(None, 300), return_sequences=False))
+    model.add(Dense(64, activation='relu'))
     model.add(Dense(class_num, activation='softmax'))
 
     # compile and train model
     model.compile(loss='categorical_crossentropy', optimizer='Adamax', metrics=['accuracy'])
     print(model.summary())
-    model.fit(generator=train_gen, validation_data=validation_gen, epochs=32,
-              use_multiprocessing=True, workers=6)
+    model.fit_generator(generator=train_gen, validation_data=validation_gen, epochs=32, use_multiprocessing=True, workers=6)
 
     # test model
     scores = model.evaluate_generator(generator=test_gen)

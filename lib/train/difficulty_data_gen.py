@@ -9,7 +9,7 @@ sys.setdefaultencoding('utf8')
 
 
 def get_data_ids(num=10000, train_percentage=0.98, validation_percentage=0.01,
-                 question_texts_fn=r'question_texts'):
+                 question_texts_fn=r'question_texts.txt'):
     ids = []
     count = 0
 
