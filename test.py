@@ -7,7 +7,7 @@ from lib.utils.clock import clock
 from lib.test.generate_data import generate_all_data, generate_test_data, generate_data_with_text_and_difficulty
 from lib.test.stat_pr import stat_prod, stat_test
 from lib.test.test_model import test_model
-from lib.train.train_difficulty_model import train
+from lib.train.train_difficulty_model import retrain
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -47,8 +47,7 @@ def test():
 
 @clock()
 def debug():
-    # generate_data_with_text_and_difficulty(question_texts_fn)
-    train()
+    retrain()
 
 
 if __name__ == '__main__':

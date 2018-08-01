@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.layers import LSTM
 from lib.train.difficulty_data_gen import DifficultyDataGen, get_data_ids
@@ -33,4 +33,29 @@ def train():
     print("Accuracy: %.2f%%" % (scores[1] * 100))
 
     model.save('model_weight.h5')
+
+
+def retrain():
+    # get train and test data
+    train_ids, validation_ids, test_ids = get_data_ids(80000)
+    train_gen = DifficultyDataGen(train_ids, 256)
+    validation_gen = DifficultyDataGen(validation_ids, 256)
+    test_gen = DifficultyDataGen(test_ids, 256)
+
+    # load model
+    model = load_model('model_weight.h5')
+    print(model.summary())
+
+    # calculate accuracy of previous model using test data
+    scores = model.evaluate_generator(generator=test_gen)
+    print("Previous accuracy: %.2f%%" % (scores[1] * 100))
+
+    # retrain model based on previous model
+    model.fit_generator(generator=train_gen, validation_data=validation_gen, epochs=32, use_multiprocessing=True, workers=6)
+
+    # test new model
+    scores = model.evaluate_generator(generator=test_gen)
+    print("Accuracy: %.2f%%" % (scores[1] * 100))
+
+    model.save('new_model_weight.h5')
 
