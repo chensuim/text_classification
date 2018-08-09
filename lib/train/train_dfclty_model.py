@@ -3,7 +3,7 @@ import sys
 from keras.models import Sequential, load_model
 from keras.layers import Dense
 from keras.layers import LSTM
-from lib.train.difficulty_data_gen import DifficultyDataGen, get_data_ids
+from lib.train.dfclty_data_gen import DifficultyDataGen, get_data_ids
 
 reload(sys)
 sys.setdefaultencoding('utf8')

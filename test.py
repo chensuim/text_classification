@@ -4,17 +4,19 @@ import argparse
 import logging
 from lib.utils.config_loader import config
 from lib.utils.clock import clock
-from lib.test.generate_data import generate_all_data, generate_test_data, generate_data_with_text_and_difficulty
+from lib.test.generate_data import generate_all_data, generate_test_data, \
+    generate_q_knowl
 from lib.test.stat_pr import stat_prod, stat_test
 from lib.test.test_model import test_model
-from lib.train.train_difficulty_model import retrain
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 test_data_fn = r'data_test.txt'
 all_data_fn = r'data_all.txt'
-question_texts_fn = r'question_texts.txt'
+q_dfclty_fn = r'q_dfclty.txt'
+q_knowl_fn = r'q_knowl.txt'
+knowl_info_fn = r'knowl_info.csv'
 
 # 设定requests库log级别
 logging.config.dictConfig(config.conf['web_logging'])
@@ -46,8 +48,8 @@ def test():
 
 
 @clock()
-def debug():
-    retrain()
+def train_knowl_model():
+    generate_q_knowl(q_knowl_fn=q_knowl_fn, knowl_info_fn=knowl_info_fn)
 
 
 if __name__ == '__main__':
@@ -57,7 +59,7 @@ if __name__ == '__main__':
     parser.add_argument('--S', action="store_true", help='stat precision/recall for prod env')
     parser.add_argument('--s', action="store_true", help='stat precision/recall for test env')
     parser.add_argument('--t', action="store_true", help='test model, update write_info_to_mysql.py before run test')
-    parser.add_argument('--d', action="store_true", help='debug')
+    parser.add_argument('--tkm', action="store_true", help='train knowl model')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
@@ -75,5 +77,5 @@ if __name__ == '__main__':
         stat_pr_test()
     elif args.t:
         test()
-    elif args.d:
-        debug()
+    elif args.tkm:
+        train_knowl_model()

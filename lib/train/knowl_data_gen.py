@@ -9,7 +9,7 @@ sys.setdefaultencoding('utf8')
 
 
 def get_data_ids(num=10000, train_percentage=0.98, validation_percentage=0.01,
-                 question_texts_fn=r'question_texts.txt'):
+                 question_texts_fn=r'q_knowl.txt'):
     ids = []
     count = 0
 
@@ -20,7 +20,7 @@ def get_data_ids(num=10000, train_percentage=0.98, validation_percentage=0.01,
                 break
 
             line = line.rstrip()
-            question_id, difficulty, text = line.split(r';;')
+            question_id, _, _ = line.split(r';;')
             ids.append(question_id)
 
     m = int(num * train_percentage)
@@ -35,9 +35,9 @@ def get_data_ids(num=10000, train_percentage=0.98, validation_percentage=0.01,
     return train_ids, validation_ids, test_ids
 
 
-class DifficultyDataGen(keras.utils.Sequence):
-    def __init__(self, ids, batch_size, n_classes=4,
-                 data_source_fn=r'question_texts.txt', words_vector_fn=r'word2vec.txt'):
+class KnowlDataGen(keras.utils.Sequence):
+    def __init__(self, ids, batch_size, n_classes=1575,
+                 data_source_fn=r'q_knowl.txt', words_vector_fn=r'word2vec.txt'):
         self.ids = ids
         self.batch_size = batch_size
         self.n_classes = n_classes
@@ -60,17 +60,17 @@ class DifficultyDataGen(keras.utils.Sequence):
         with open(self.data_source_fn, 'r') as f:
             for line in f:
                 line = line.rstrip()
-                question_id, difficulty, text = line.split(r';;')
+                question_id, knowl, text = line.split(r';;')
 
                 if question_id not in ids:
                     continue
 
                 text = text.decode('utf-8')
                 text = ''.join(re.findall(ur'[\u4e00-\u9fff]+', text))
-                difficulty = int(difficulty) - 1
+                knowl = [int(idx) for idx in knowl.split(',')]
 
                 X_i = self.get_vector_from_text(text)
-                y_i = keras.utils.to_categorical(difficulty, num_classes=self.n_classes)
+                y_i = np.sum(keras.utils.to_categorical(knowl, num_classes=self.n_classes), axis=0)
 
                 X.append(X_i)
                 y.append(y_i)

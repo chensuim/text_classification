@@ -45,7 +45,7 @@ def get_question_ids_patch(connection):
         yield [result[0] for result in results] if results else None
 
 
-def generate_data_with_text_and_difficulty(question_texts_fn):
+def generate_q_dfclty(q_dfclty_fn):
     mysql_conf = config.conf['mysql'][config.runtime_mode]
     connection = connect_db(**mysql_conf)
 
@@ -59,7 +59,8 @@ def generate_data_with_text_and_difficulty(question_texts_fn):
             sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, `st`.`tag_id` ' \
                       'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
                       'ON `ss`.`question_id` = `st`.`question_id` ' \
-                      'WHERE `ss`.`question_id` = \"{}\" AND `st`.`tag_type` = \"A\" AND `st`.`status` = 1'
+                      'WHERE `ss`.`question_id` = \"{}\" AND `ss`.`status` = 1 ' \
+                      'AND `st`.`tag_type` = \"A\" AND `st`.`status` = 1'
             sql = sql_fmt.format(_id)
             results = connection.execute(sql).fetchall()
 
@@ -76,10 +77,74 @@ def generate_data_with_text_and_difficulty(question_texts_fn):
 
             lines.append('{};;{};;{}\n'.format(_id, difficulty[-1], question_text))
 
-        file_path = os.path.join(os.getcwd(), question_texts_fn)
+        file_path = os.path.join(os.getcwd(), q_dfclty_fn)
         with open(file_path, 'a+') as f:
             for line in lines:
                 f.write(line)
+
+
+def generate_q_knowl(q_knowl_fn, knowl_info_fn):
+    mysql_conf = config.conf['mysql'][config.runtime_mode]
+    connection = connect_db(**mysql_conf)
+
+    errors = []
+    q_knowl_map = get_q_knowl_map(knowl_info_fn)
+    ids_patch_generator = get_question_ids_patch(connection)
+    for ids in ids_patch_generator:
+        if not ids:
+            continue
+
+        lines = []
+        for _id in ids:
+            sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, GROUP_CONCAT(`st`.`tag_id`) ' \
+                      'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
+                      'ON `ss`.`question_id` = `st`.`question_id` ' \
+                      'WHERE `ss`.`question_id` = \"{}\" AND `ss`.`status` = 1 ' \
+                      'AND `st`.`tag_type` = \"G\" AND `st`.`status` = 1 ' \
+                      'GROUP BY `ss`.`id`'
+            sql = sql_fmt.format(_id)
+            results = connection.execute(sql).fetchall()
+
+            if not results:
+                continue
+
+            title, analysis, remark, knowl = results[0]
+
+            question_text = '{}{}{}'.format(title, analysis, remark)
+            question_text = question_text.replace('\r', '')
+            question_text = question_text.replace('\n', '')
+
+            try:
+                knowl = ','.join([str(q_knowl_map[knowl_id]) for knowl_id in knowl.split(',')])
+            except KeyError as ex:
+                errors.append('{}:{}'.format(knowl, ex))
+                continue
+
+            lines.append('{};;{};;{}\n'.format(_id, knowl, question_text))
+
+        file_path = os.path.join(os.getcwd(), q_knowl_fn)
+        with open(file_path, 'a+') as f:
+            for line in lines:
+                f.write(line)
+
+    print '[ERROR]num:{}'.format(len(errors))
+    for idx, error in enumerate(errors):
+        print '[ERROR]{}:{}'.format(idx, error)
+
+
+def get_q_knowl_map(knowl_info_fn):
+    q_knowl_map = {}
+    with open(knowl_info_fn, 'r') as f:
+        count = 0
+        first_line = True
+        for line in f:
+            if first_line:
+                first_line = False
+                continue
+            _id, _, _ = line.rstrip().split(';')
+            q_knowl_map[_id] = count
+            count += 1
+    return q_knowl_map
 
 
 def generate_all_data(all_data_fn):
