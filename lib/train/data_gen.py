@@ -19,7 +19,7 @@ class DataGen(keras.utils.Sequence):
         self._word2vector_map = self.load_word2vector_map(word2vector_fn)
 
     def __len__(self):
-        return int(np.floor(len(self._ids) / self._batch_size))
+        return int(np.ceil(float(len(self._ids)) / self._batch_size))
 
     def __getitem__(self, idx):
         batch_ids = self._ids[idx * self._batch_size:(idx + 1) * self._batch_size]

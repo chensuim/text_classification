@@ -43,7 +43,7 @@ def train_dfclty_model():
 def train_knowl_model():
     # get train, validation and test data generator
     q_type = 'G'
-    q_num = 1000
+    q_num = 80000
     batch_size = 256
     class_num = 1575
 
