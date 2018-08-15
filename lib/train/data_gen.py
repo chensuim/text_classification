@@ -167,3 +167,59 @@ class KnowlDataGen(DataGen):
                 knowl2int_map[_id] = count
                 count += 1
         return knowl2int_map
+
+
+class ChapterDataGen(DataGen):
+    def __init__(self, ids, batch_size, n_classes, chapter2int_fn=r'chapter_info.csv'):
+        super(ChapterDataGen, self).__init__(ids, batch_size, n_classes)
+        self._chapter2int_map = self.load_chapter2int_map(chapter2int_fn)
+        self._errors = []
+
+    def _get_org_data_by_ids(self, ids):
+        X = []
+        y = []
+
+        mysql_conf = config.conf['mysql'][config.runtime_mode]
+        connection = connect_db(**mysql_conf)
+
+        sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, GROUP_CONCAT(`st`.`tag_id`) ' \
+                  'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
+                  'ON `ss`.`question_id` = `st`.`question_id` ' \
+                  'WHERE `ss`.`question_id` IN ({}) AND `ss`.`status` = 1 ' \
+                  'AND `st`.`tag_type` = \"H\" AND `st`.`status` = 1 ' \
+                  'GROUP BY `ss`.`id`'
+        sql = sql_fmt.format(', '.join(['\"{}\"'.format(_id) for _id in ids]))
+        results = connection.execute(sql).fetchall()
+
+        for title, analysis, remark, chapter in results:
+            q_text = '{}{}{}'.format(title, analysis, remark)
+            q_text = q_text.replace('\r', '')
+            q_text = q_text.replace('\n', '')
+            q_text = q_text.decode('utf-8')
+            q_text = ''.join(re.findall(ur'[\u4e00-\u9fff]+', q_text))
+
+            try:
+                chapter_list = [self._chapter2int_map[_id] for _id in chapter.split(',')]
+            except KeyError as ex:
+                self._errors.append('{}:{}'.format(chapter, ex))
+                continue
+
+            X.append(q_text)
+            y.append(chapter_list)
+
+        return X, y
+
+    @staticmethod
+    def load_chapter2int_map(chapter2int_fn):
+        chapter2int_map = {}
+        with open(chapter2int_fn, 'r') as f:
+            count = 0
+            first_line = True
+            for line in f:
+                if first_line:
+                    first_line = False
+                    continue
+                _id, _, _ = line.rstrip().split(';')
+                chapter2int_map[_id] = count
+                count += 1
+        return chapter2int_map

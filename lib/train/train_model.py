@@ -3,7 +3,7 @@ import sys
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
-from lib.train.data_gen import DfcltyDataGen, KnowlDataGen
+from lib.train.data_gen import DfcltyDataGen, KnowlDataGen, ChapterDataGen
 from lib.train.data_access import get_q_ids
 
 reload(sys)
@@ -68,3 +68,33 @@ def train_knowl_model():
     print("[Knowl Model]Accuracy: %.2f%%" % (scores[1] * 100))
 
     model.save('knowl_model.h5')
+
+
+def train_chapter_model():
+    # get train, validation and test data generator
+    q_type = 'H'
+    q_num = 80000
+    batch_size = 256
+    class_num = 2369
+
+    train_q_ids, valid_q_ids, test_q_ids = get_q_ids(q_type, q_num)
+    train_gen = ChapterDataGen(train_q_ids, batch_size, class_num)
+    valid_gen = ChapterDataGen(valid_q_ids, batch_size, class_num)
+    test_gen = ChapterDataGen(test_q_ids, batch_size, class_num)
+
+    # create LSTM model
+    model = Sequential()
+    model.add(LSTM(128, input_shape=(None, 300), return_sequences=False))
+    model.add(Dense(64, activation='relu'))
+    model.add(Dense(class_num, activation='sigmoid'))
+
+    # compile and train model
+    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    print(model.summary())
+    model.fit_generator(generator=train_gen, validation_data=valid_gen, epochs=2, use_multiprocessing=True, workers=6)
+
+    # test model
+    scores = model.evaluate_generator(generator=test_gen)
+    print("[Chapter Model]Accuracy: %.2f%%" % (scores[1] * 100))
+
+    model.save('chapter_model.h5')
