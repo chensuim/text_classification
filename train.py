@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='train model arguments description')
     parser.add_argument('--tkm', action="store_true", help='train knowl model')
     parser.add_argument('--tdm', action="store_true", help='train dfclty model')
-    parser.add_argument('--tcm', action="store_true", help='train dfclty model')
+    parser.add_argument('--tcm', action="store_true", help='train chapter model')
 
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
