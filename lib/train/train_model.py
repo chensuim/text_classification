@@ -37,7 +37,7 @@ def train_dfclty_model():
     scores = model.evaluate_generator(generator=test_gen)
     print("[Dfclty Model]Accuracy: %.2f%%" % (scores[1] * 100))
 
-    model.save('dfclty_model.h5')
+    model.save('./res/dfclty_model.h5')
 
 
 def train_knowl_model():
@@ -67,7 +67,7 @@ def train_knowl_model():
     scores = model.evaluate_generator(generator=test_gen)
     print("[Knowl Model]Accuracy: %.2f%%" % (scores[1] * 100))
 
-    model.save('knowl_model.h5')
+    model.save('./res/knowl_model.h5')
 
 
 def train_chapter_model():
@@ -97,4 +97,4 @@ def train_chapter_model():
     scores = model.evaluate_generator(generator=test_gen)
     print("[Chapter Model]Accuracy: %.2f%%" % (scores[1] * 100))
 
-    model.save('chapter_model.h5')
+    model.save('./res/chapter_model.h5')

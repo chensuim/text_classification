@@ -11,7 +11,7 @@ sys.setdefaultencoding('utf8')
 
 
 class DataGen(keras.utils.Sequence):
-    def __init__(self, ids, batch_size, n_classes, max_len=800, word2vector_fn=r'word2vec.txt'):
+    def __init__(self, ids, batch_size, n_classes, max_len=800, word2vector_fn=r'./res/word2vec.txt'):
         self._ids = ids
         self._batch_size = batch_size
         self._n_classes = n_classes
@@ -114,7 +114,7 @@ class DfcltyDataGen(DataGen):
 
 
 class KnowlDataGen(DataGen):
-    def __init__(self, ids, batch_size, n_classes, knowl2int_fn=r'knowl_info.csv'):
+    def __init__(self, ids, batch_size, n_classes, knowl2int_fn=r'./res/knowl_info.csv'):
         super(KnowlDataGen, self).__init__(ids, batch_size, n_classes)
         self._knowl2int_map = self.load_knowl2int_map(knowl2int_fn)
         self._errors = []
@@ -170,7 +170,7 @@ class KnowlDataGen(DataGen):
 
 
 class ChapterDataGen(DataGen):
-    def __init__(self, ids, batch_size, n_classes, chapter2int_fn=r'chapter_info.csv'):
+    def __init__(self, ids, batch_size, n_classes, chapter2int_fn=r'./res/chapter_info.csv'):
         super(ChapterDataGen, self).__init__(ids, batch_size, n_classes)
         self._chapter2int_map = self.load_chapter2int_map(chapter2int_fn)
         self._errors = []
