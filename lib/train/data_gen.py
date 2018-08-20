@@ -5,18 +5,90 @@ import numpy as np
 import keras
 from lib.train.data_access import connect_db
 from lib.utils.config_loader import config
+from lib.utils.singleton import singleton
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 
+@singleton
+class Word2vector(object):
+    def __init__(self, word2vector_fn=r'./res/word2vec.txt'):
+        self._word2vector_map = self.load_word2vector_map(word2vector_fn)
+
+    def get_word2vector_map(self):
+        return self._word2vector_map
+
+    @staticmethod
+    def load_word2vector_map(word2vector_fn):
+        word2vector_map = {}
+        first_line = True
+        with open(word2vector_fn, 'r') as f:
+            for line in f:
+                if first_line:
+                    first_line = False
+                    continue
+                tokens = line.rstrip().split(' ')
+                word2vector_map[tokens[0].decode('utf-8')] = [float(x) for x in tokens[1:]]
+
+        return word2vector_map
+
+
+@singleton
+class Knowl2int(object):
+    def __init__(self, knowl2int_fn=r'./res/knowl_info.csv'):
+        self._knowl2int_map = self.load_knowl2int_map(knowl2int_fn)
+
+    def get_knowl2int_map(self):
+        return self._knowl2int_map
+
+    @staticmethod
+    def load_knowl2int_map(knowl2int_fn):
+        knowl2int_map = {}
+        with open(knowl2int_fn, 'r') as f:
+            count = 0
+            first_line = True
+            for line in f:
+                if first_line:
+                    first_line = False
+                    continue
+                _id, _, _ = line.rstrip().split(';')
+                knowl2int_map[_id] = count
+                count += 1
+        return knowl2int_map
+
+
+@singleton
+class Chapter2int(object):
+    def __init__(self, chapter2int_fn=r'./res/chapter_info.csv'):
+        self._chapter2int_map = self.load_chapter2int_map(chapter2int_fn)
+
+    def get_chapter2int_map(self):
+        return self._chapter2int_map
+
+    @staticmethod
+    def load_chapter2int_map(chapter2int_fn):
+        chapter2int_map = {}
+        with open(chapter2int_fn, 'r') as f:
+            count = 0
+            first_line = True
+            for line in f:
+                if first_line:
+                    first_line = False
+                    continue
+                _id, _, _ = line.rstrip().split(';')
+                chapter2int_map[_id] = count
+                count += 1
+        return chapter2int_map
+
+
 class DataGen(keras.utils.Sequence):
-    def __init__(self, ids, batch_size, n_classes, max_len=800, word2vector_fn=r'./res/word2vec.txt'):
+    def __init__(self, ids, batch_size, n_classes, max_len=800):
         self._ids = ids
         self._batch_size = batch_size
         self._n_classes = n_classes
         self._max_len = max_len
-        self._word2vector_map = self.load_word2vector_map(word2vector_fn)
+        self._word2vector_map = Word2vector().get_word2vector_map()
 
     def __len__(self):
         return int(np.ceil(float(len(self._ids)) / self._batch_size))
@@ -64,20 +136,6 @@ class DataGen(keras.utils.Sequence):
 
         return vectors
 
-    @staticmethod
-    def load_word2vector_map(word2vector_fn):
-        word2vector_map = {}
-        first_line = True
-        with open(word2vector_fn, 'r') as f:
-            for line in f:
-                if first_line:
-                    first_line = False
-                    continue
-                tokens = line.rstrip().split(' ')
-                word2vector_map[tokens[0].decode('utf-8')] = [float(x) for x in tokens[1:]]
-
-        return word2vector_map
-
 
 class DfcltyDataGen(DataGen):
     def __init__(self, ids, batch_size, n_classes):
@@ -114,9 +172,9 @@ class DfcltyDataGen(DataGen):
 
 
 class KnowlDataGen(DataGen):
-    def __init__(self, ids, batch_size, n_classes, knowl2int_fn=r'./res/knowl_info.csv'):
+    def __init__(self, ids, batch_size, n_classes):
         super(KnowlDataGen, self).__init__(ids, batch_size, n_classes)
-        self._knowl2int_map = self.load_knowl2int_map(knowl2int_fn)
+        self._knowl2int_map = Knowl2int().get_knowl2int_map()
         self._errors = []
 
     def _get_org_data_by_ids(self, ids):
@@ -153,26 +211,11 @@ class KnowlDataGen(DataGen):
 
         return X, y
 
-    @staticmethod
-    def load_knowl2int_map(knowl2int_fn):
-        knowl2int_map = {}
-        with open(knowl2int_fn, 'r') as f:
-            count = 0
-            first_line = True
-            for line in f:
-                if first_line:
-                    first_line = False
-                    continue
-                _id, _, _ = line.rstrip().split(';')
-                knowl2int_map[_id] = count
-                count += 1
-        return knowl2int_map
-
 
 class ChapterDataGen(DataGen):
-    def __init__(self, ids, batch_size, n_classes, chapter2int_fn=r'./res/chapter_info.csv'):
+    def __init__(self, ids, batch_size, n_classes):
         super(ChapterDataGen, self).__init__(ids, batch_size, n_classes)
-        self._chapter2int_map = self.load_chapter2int_map(chapter2int_fn)
+        self._chapter2int_map = Chapter2int().get_chapter2int_map()
         self._errors = []
 
     def _get_org_data_by_ids(self, ids):

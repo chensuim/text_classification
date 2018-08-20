@@ -24,14 +24,13 @@ def train_dfclty_model():
 
     # create LSTM model
     model = Sequential()
-    model.add(LSTM(128, input_shape=(None, 300), return_sequences=False))
-    model.add(Dense(64, activation='relu'))
+    model.add(LSTM(class_num * 4, input_shape=(None, 300), return_sequences=False))
     model.add(Dense(class_num, activation='softmax'))
 
     # compile and train model
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
-    model.fit_generator(generator=train_gen, validation_data=valid_gen, epochs=64, use_multiprocessing=True, workers=6)
+    model.fit_generator(generator=train_gen, validation_data=valid_gen, epochs=128, use_multiprocessing=True, workers=8)
 
     # test model
     scores = model.evaluate_generator(generator=test_gen)
