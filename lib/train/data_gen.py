@@ -1,20 +1,53 @@
 # -*- coding: utf-8 -*-
+import json
 import sys
 import re
 import numpy as np
 import keras
-from lib.train.data_access import connect_db
 from lib.utils.config_loader import config
 from lib.utils.singleton import singleton
+from gensim.models import KeyedVectors
+bracket_p = re.compile(r"<.*?>|\(.*?\)")
+chi_p = re.compile(ur"[\u4E00-\u9FFF]")
+not_char_p = re.compile(ur"[^\s\w]")
+choices_p = re.compile(ur"[ABCDE]:")
+_p = re.compile(ur"_*")
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 
 @singleton
+class Texter(object):
+    def __init__(self, fn='./res/listen.txt'):
+        with open(fn, 'r') as f:
+            self._lines = map(self.clean, f.readlines())
+
+    @staticmethod
+    def clean(s):
+        d = json.loads(s)
+        s = d['text']
+        labels = d['labels']
+        s = re.sub(_p, '', s)
+        s = re.sub(choices_p, ' ', s)
+        s = re.sub(bracket_p, ' ', s)
+        s = re.sub(not_char_p, '', s)
+        s = s.replace("u2014", "")
+        return ' '.join(s.split()), labels
+
+    def get(self, ids):
+        res = list()
+        for _id in ids:
+            if _id < len(self._lines):
+                res.append(self._lines[_id])
+        return res
+
+
+@singleton
 class Word2vector(object):
     def __init__(self, word2vector_fn=r'./res/word2vec.txt'):
-        self._word2vector_map = self.load_word2vector_map(word2vector_fn)
+        self._word2vector_map = KeyedVectors.load_word2vec_format('./Downloads/GoogleNews-vectors-negative300.bin',
+                                                                  binary=True)
 
     def get_word2vector_map(self):
         return self._word2vector_map
@@ -36,7 +69,7 @@ class Word2vector(object):
 
 @singleton
 class Knowl2int(object):
-    def __init__(self, knowl2int_fn=r'./res/knowl_info.csv'):
+    def __init__(self, knowl2int_fn=r'./res/ks.txt'):
         self._knowl2int_map = self.load_knowl2int_map(knowl2int_fn)
 
     def get_knowl2int_map(self):
@@ -44,18 +77,9 @@ class Knowl2int(object):
 
     @staticmethod
     def load_knowl2int_map(knowl2int_fn):
-        knowl2int_map = {}
         with open(knowl2int_fn, 'r') as f:
-            count = 0
-            first_line = True
-            for line in f:
-                if first_line:
-                    first_line = False
-                    continue
-                _id, _, _ = line.rstrip().split(';')
-                knowl2int_map[_id] = count
-                count += 1
-        return knowl2int_map
+            ks = json.load(f)
+        return dict(zip(ks, range(len(ks))))
 
 
 @singleton
@@ -131,8 +155,8 @@ class DataGen(keras.utils.Sequence):
 
     def convert_text_to_vectors(self, text):
         vectors = []
-        for c in text:
-            vectors.append(self._word2vector_map[c])
+        for word in text.split():
+            vectors.append(self._word2vector_map[word])
 
         return vectors
 
@@ -146,7 +170,8 @@ class DfcltyDataGen(DataGen):
         y = []
 
         mysql_conf = config.conf['mysql'][config.runtime_mode]
-        connection = connect_db(**mysql_conf)
+        # connection = connect_db(**mysql_conf)
+        connection = None
 
         sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, `st`.`tag_id` ' \
                   'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
@@ -181,32 +206,16 @@ class KnowlDataGen(DataGen):
         X = []
         y = []
 
-        mysql_conf = config.conf['mysql'][config.runtime_mode]
-        connection = connect_db(**mysql_conf)
+        results = Texter().get(ids)
 
-        sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, GROUP_CONCAT(`st`.`tag_id`) ' \
-                  'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
-                  'ON `ss`.`question_id` = `st`.`question_id` ' \
-                  'WHERE `ss`.`question_id` IN ({}) AND `ss`.`status` = 1 ' \
-                  'AND `st`.`tag_type` = \"G\" AND `st`.`status` = 1 ' \
-                  'GROUP BY `ss`.`id`'
-        sql = sql_fmt.format(', '.join(['\"{}\"'.format(_id) for _id in ids]))
-        results = connection.execute(sql).fetchall()
-
-        for title, analysis, remark, knowl in results:
-            q_text = '{}{}{}'.format(title, analysis, remark)
-            q_text = q_text.replace('\r', '')
-            q_text = q_text.replace('\n', '')
-            q_text = q_text.decode('utf-8')
-            q_text = ''.join(re.findall(ur'[\u4e00-\u9fff]+', q_text))
-
+        for text, knowl in results:
             try:
-                knowl_list = [self._knowl2int_map[_id] for _id in knowl.split(',')]
+                knowl_list = [self._knowl2int_map[_id] for _id in knowl]
             except KeyError as ex:
                 self._errors.append('{}:{}'.format(knowl, ex))
                 continue
 
-            X.append(q_text)
+            X.append(text)
             y.append(knowl_list)
 
         return X, y
@@ -223,7 +232,8 @@ class ChapterDataGen(DataGen):
         y = []
 
         mysql_conf = config.conf['mysql'][config.runtime_mode]
-        connection = connect_db(**mysql_conf)
+        # connection = connect_db(**mysql_conf)
+        connection = None
 
         sql_fmt = 'SELECT `ss`.`title`, `ss`.`analysis`, `ss`.`remark`, GROUP_CONCAT(`st`.`tag_id`) ' \
                   'FROM `solution` AS `ss` JOIN `solution_tag` AS `st` ' \
